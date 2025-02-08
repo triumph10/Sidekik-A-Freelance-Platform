@@ -1,0 +1,55 @@
+.upload-container {
+    margin-top: 80px;
+    padding: 2rem 5%;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.project-upload {
+    background: var(--white);
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.upload-form {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.cancel-btn {
+    background: #f3f4f6;
+    color: var(--text-color);
+    padding: 1rem 2rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    flex: 1;
+}
+
+.upload-btn {
+    background: var(--primary-color);
+    color: white;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    flex: 2;
+}
+
+.upload-btn:hover {
+    background: var(--secondary-color);
+}
+
+.cancel-btn:hover {
+    background: #e5e7eb;
+} 

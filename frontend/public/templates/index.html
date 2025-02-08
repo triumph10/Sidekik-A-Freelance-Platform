@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Side-kik - AI-Powered Freelancing Platform</title>
+    <link rel="stylesheet" href="../static/css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="logo">
+            <h1>Side-kik</h1>
+        </div>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="./index.html" class="active">Home</a></li>
+                <li><a href="./about.html">About</a></li>
+            </ul>
+        </nav>
+        <div class="auth-buttons">
+            <a href="./login.html" class="btn login">Login</a>
+            <a href="./signup.html" class="btn signup">Sign Up</a>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>Find the Perfect Freelancer with AI Matching</h1>
+            <p>Connect with top talent matched perfectly to your needs</p>
+            <div class="search-container">
+                <input type="text" placeholder="Search skills, services, or freelancers...">
+                <button class="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+        </section>
+
+        <section class="features">
+            <h2>Why Choose Side-kik?</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <i class="fas fa-robot"></i>
+                    <h3>AI-Powered Matching</h3>
+                    <p>Find the perfect match for your project instantly</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>Secure Payments</h3>
+                    <p>Your money is safe until you're satisfied</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Market Insights</h3>
+                    <p>Stay ahead with real-time market trends</p>
+                </div>
+            </div>
+            <div class="insight-blocks">
+                <div class="insight-block recommendations" onclick="window.location.href='recommendations.html'">
+                    <div class="insight-content">
+                        <i class="fas fa-user-check"></i>
+                        <h3>Freelancer Recommendations</h3>
+                        <p>Get personalized AI-powered freelancer matches based on your project needs</p>
+                        <div class="recommendation-preview">
+                            <div class="preview-item">
+                                <img src="images/default-avatar.png" alt="Freelancer">
+                                <div class="preview-info">
+                                    <span class="skill">Full Stack Developer</span>
+                                    <span class="rating"><i class="fas fa-star"></i> 4.9</span>
+                                </div>
+                            </div>
+                            <div class="preview-item">
+                                <img src="images/default-avatar.png" alt="Freelancer">
+                                <div class="preview-info">
+                                    <span class="skill">UI/UX Designer</span>
+                                    <span class="rating"><i class="fas fa-star"></i> 4.8</span>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="view-more">View Recommendations <i class="fas fa-arrow-right"></i></span>
+                    </div>
+                </div>
+                <div class="insight-block market-analysis" onclick="window.location.href='#market-analysis'">
+                    <div class="insight-content">
+                        <i class="fas fa-chart-bar"></i>
+                        <h3>Market Analysis</h3>
+                        <p>Explore current market trends and in-demand skills</p>
+                        <div class="trend-preview">
+                            <div class="trend-item">
+                                <span class="trend-label">AI Development</span>
+                                <div class="trend-bar">
+                                    <div class="trend-progress" style="width: 85%"></div>
+                                </div>
+                            </div>
+                            <div class="trend-item">
+                                <span class="trend-label">Web3</span>
+                                <div class="trend-bar">
+                                    <div class="trend-progress" style="width: 70%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="view-more">View Market Insights <i class="fas fa-arrow-right"></i></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="trending-services">
+            <h2>Trending Services</h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <img src="images/web-dev.jpg" alt="Web Development">
+                    <h3>Web Development</h3>
+                    <p>Starting at $50</p>
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <span>4.9 (2.5k+ reviews)</span>
+                    </div>
+                </div>
+                <div class="service-card">
+                    <img src="images/ai-ml.jpg" alt="AI & ML">
+                    <h3>AI & Machine Learning</h3>
+                    <p>Starting at $100</p>
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <span>4.8 (1.8k+ reviews)</span>
+                    </div>
+                </div>
+                <!-- Add more service cards as needed -->
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>About</h3>
+                <ul>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#careers">Careers</a></li>
+                    <li><a href="#press">Press</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="#help">Help & Support</a></li>
+                    <li><a href="#trust">Trust & Safety</a></li>
+                    <li><a href="#contact">Contact Us</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Side-kik. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../static/js/main.js"></script>
+</body>
+</html> 

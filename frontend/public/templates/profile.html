@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freelancer Profile - Side-kik</title>
+    <link rel="stylesheet" href="../static/css/main.css">
+    <link rel="stylesheet" href="../static/css/profile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="logo">
+            <h1>Side-kik</h1>
+        </div>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="./freelancer-dashboard.html">Dashboard</a></li>
+            </ul>
+        </nav>
+        <div class="profile-menu">
+            <span class="username">John Doe</span>
+        </div>
+    </header>
+
+    <main class="profile-container">
+        <section class="profile-header">
+            <div class="profile-cover">
+                <button class="edit-cover"><i class="fas fa-camera"></i> Edit Cover</button>
+            </div>
+            <div class="profile-info">
+                <div class="profile-avatar">
+                    <img src="images/default-avatar.png" alt="John Doe">
+                    <button class="edit-avatar"><i class="fas fa-camera"></i></button>
+                </div>
+                <div class="profile-details">
+                    <div class="profile-text">
+                        <h1>John Doe</h1>
+                        <h2>Senior Full Stack Developer</h2>
+                        <p class="location"><i class="fas fa-map-marker-alt"></i> New York, USA</p>
+                    </div>
+                    <div class="profile-actions">
+                        <button class="btn edit-profile">Edit Profile</button>
+                        <button class="btn share-profile"><i class="fas fa-share-alt"></i></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="profile-content">
+            <section class="profile-main">
+                <div class="about-section">
+                    <h3>About Me</h3>
+                    <p>Full-stack developer with 5+ years of experience in building scalable web applications. Specialized in React, Node.js, and cloud technologies. Passionate about creating efficient and user-friendly solutions.</p>
+                </div>
+
+                <div class="skills-section">
+                    <h3>Skills</h3>
+                    <div class="skills-grid">
+                        <span class="skill-tag">React</span>
+                        <span class="skill-tag">Node.js</span>
+                        <span class="skill-tag">MongoDB</span>
+                        <span class="skill-tag">AWS</span>
+                        <span class="skill-tag">TypeScript</span>
+                        <span class="skill-tag">Docker</span>
+                    </div>
+                </div>
+
+                <div class="portfolio-section">
+                    <h3>Portfolio Projects</h3>
+                    <div class="projects-grid">
+                        <!-- Project cards will be dynamically added here -->
+                    </div>
+                </div>
+            </section>
+
+            <aside class="profile-sidebar">
+                <div class="stats-card">
+                    <div class="stat-item">
+                        <span class="stat-value">4.9</span>
+                        <span class="stat-label">Rating</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">127</span>
+                        <span class="stat-label">Projects</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">98%</span>
+                        <span class="stat-label">Success Rate</span>
+                    </div>
+                </div>
+
+                <div class="contact-card">
+                    <h3>Contact Information</h3>
+                    <ul class="contact-list">
+                        <li><i class="fas fa-envelope"></i> john.doe@example.com</li>
+                        <li><i class="fas fa-phone"></i> +1 (555) 123-4567</li>
+                        <li><i class="fas fa-globe"></i> www.johndoe.dev</li>
+                    </ul>
+                </div>
+
+                <div class="social-card">
+                    <h3>Social Links</h3>
+                    <div class="social-links">
+                        <a href="#" class="social-link linkedin">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                        <a href="#" class="social-link github">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="#" class="social-link twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="social-link dribbble">
+                            <i class="fab fa-dribbble"></i>
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <script src="..static/js/profile.js"></script>
+</body>
+</html> 
