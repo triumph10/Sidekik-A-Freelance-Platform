@@ -1,0 +1,2 @@
+pip install supabase
+npm install @supabase/supabase-js
