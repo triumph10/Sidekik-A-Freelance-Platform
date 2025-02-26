@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up - Side-kik</title>
+    <title>Login - Side-kik</title>
     <link rel="stylesheet" href="../static/css/main.css">
     <link rel="stylesheet" href="../static/css/auth.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -13,14 +13,10 @@
         <div class="auth-card">
             <div class="auth-header">
                 <a href="index.html" class="logo">Side-kik</a>
-                <h2>Create Account</h2>
-                <p>Join our freelancing community</p>
+                <h2>Welcome Back</h2>
+                <p>Log in to your account</p>
             </div>
-            <form class="auth-form" id="signupForm">
-                <div class="form-group">
-                    <label for="fullName">Full Name</label>
-                    <input type="text" id="fullName" required>
-                </div>
+            <form class="auth-form" id="loginForm">
                 <div class="form-group">
                     <label for="email">Email</label>
                     <input type="email" id="email" required>
@@ -28,17 +24,11 @@
                 <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" id="password" required>
+                    <a href="#" class="forgot-password">Forgot Password?</a>
                 </div>
-                <div class="form-group">
-                    <label for="accountType">I want to</label>
-                    <select id="accountType" required>
-                        <option value="hire">Hire Freelancers</option>
-                        <option value="work">Work as Freelancer</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn auth-btn">Create Account</button>
+                <button type="submit" class="btn auth-btn">Log In</button>
                 <div class="social-login">
-                    <p>Or sign up with</p>
+                    <p>Or continue with</p>
                     <div class="social-buttons">
                         <button type="button" class="social-btn google">
                             <i class="fab fa-google"></i> Google
@@ -50,10 +40,10 @@
                 </div>
             </form>
             <p class="auth-footer">
-                Already have an account? <a href="login.html">Log in</a>
+                Don't have an account? <a href="signup.html">Sign up</a>
             </p>
         </div>
     </div>
-    <script src="../static/js/authe.js"></script>
+    <script src="../static/js/auth.js"></script>
 </body>
 </html> 
