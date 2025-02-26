@@ -16,7 +16,7 @@
                 <h2>Create Account</h2>
                 <p>Join our freelancing community</p>
             </div>
-            <form class="auth-form" id="signupForm">
+            <form class="auth-form" id="signupForm" action="/signup" method="POST">
                 <div class="form-group">
                     <label for="fullName">Full Name</label>
                     <input type="text" id="fullName" required>
@@ -30,10 +30,10 @@
                     <input type="password" id="password" required>
                 </div>
                 <div class="form-group">
-                    <label for="accountType">I want to</label>
+                    <label for="accountType">I want to be a</label>
                     <select id="accountType" required>
-                        <option value="hire">Hire Freelancers</option>
-                        <option value="work">Work as Freelancer</option>
+                        <option value="hire">Client</option>
+                        <option value="work">Freelancer</option>
                     </select>
                 </div>
                 <button type="submit" class="btn auth-btn">Create Account</button>
