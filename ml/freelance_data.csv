@@ -1,0 +1,121 @@
+freelancer_id,job_skills,experience,projects
+1,Java; Big Data; Hadoop,5 years,Developed a big data processing system using Hadoop and Spark.
+2,JavaScript; React; Node.js,3 years,Built a real-time chat application using React and Node.js.
+3,Java; Spring; Microservices,6 years,Implemented a microservices architecture for an e-commerce platform.
+4,Python; Django; Machine Learning,4 years,Created a machine learning model for predictive analytics.
+5,Ruby; Rails; PostgreSQL,7 years,Developed a scalable web application using Ruby on Rails.
+6,Java; Big Data; Kafka,5 years,Designed a big data pipeline using Kafka and Hadoop.
+7,Go; Kubernetes; Docker,4 years,Implemented a containerized application using Kubernetes and Docker.
+8,Java; Big Data; Apache Spark,5 years,Developed a real-time data processing system using Apache Spark.
+9,Java; Big Data; Elasticsearch,5 years,Created a search engine using Elasticsearch for big data analytics.
+10,JavaScript; Vue.js; Firebase,3 years,Developed a progressive web app using Vue.js and Firebase.
+11,Python; Flask; Machine Learning,4 years,Implemented a machine learning model for image recognition.
+12,Java; Spring Boot; Microservices,6 years,Developed a microservices-based application using Spring Boot.
+13,Ruby; Sinatra; MySQL,7 years,Created a lightweight web application using Ruby and Sinatra.
+14,Java; Big Data; HBase,5 years,Designed a big data storage solution using HBase and Hadoop.
+15,Go; Microservices; Kubernetes,4 years,Developed a microservices application using Go and Kubernetes.
+16,Java; Big Data; Apache Flink,5 years,Implemented a data processing system using Apache Flink.
+17,Java; Big Data; Hive,5 years,Developed a data warehouse solution using Hive and Hadoop.
+18,JavaScript; Angular; Node.js,3 years,Created a single-page application using Angular and Node.js.
+19,Python; Tornado; Machine Learning,4 years,Implemented a real-time machine learning system using Tornado.
+20,Java; Spring; Hibernate,6 years,Developed a web application using Spring and Hibernate.
+21,"Spring Boot, Go, Flask, Microservices",14 years,Legacy system upgrade
+22,"Ruby, Azure, Python, Machine Learning",7 years,Front-end redesign
+23,"Java, Python, PostgreSQL, Go",3 years,Microservices architecture
+24,"PostgreSQL, Ruby, SQL, C#",9 years,Cloud infrastructure setup
+25,"Kubernetes, C#, Node.js, Microservices",8 years,Security audit
+26,"Kubernetes, Flask, SQL, JavaScript",7 years,Front-end redesign
+27,"Microservices, Java, Kubernetes, C#",11 years,Front-end redesign
+28,"Django, Flask, Azure, MongoDB",13 years,Microservices architecture
+29,"Flask, Machine Learning, Django, PostgreSQL",7 years,Front-end redesign
+30,"Ruby, SQL, MongoDB, Spring Boot",9 years,Machine Learning model
+31,"AWS, JavaScript, Go, Spring Boot",13 years,Cloud infrastructure setup
+32,"Go, C#, AWS, Flask",3 years,Front-end redesign
+33,"SQL, PostgreSQL, JavaScript, Microservices",12 years,Machine Learning model
+34,"Kubernetes, JavaScript, Java, Ruby",6 years,Security audit
+35,"Java, Flask, Kubernetes, Microservices",3 years,API development
+36,"Big Data, JavaScript, SQL, Python",8 years,Microservices architecture
+37,"Big Data, AWS, C#, MongoDB",10 years,Microservices architecture
+38,"Go, Flask, Kubernetes, Machine Learning",8 years,Security audit
+39,"Machine Learning, Spring Boot, Microservices, Node.js",14 years,E-commerce website
+40,"Spring Boot, Node.js, MongoDB, Go",11 years,Front-end redesign
+41,"Go, AWS, Azure, Big Data",1 years,Microservices architecture
+42,"C#, Java, Ruby, JavaScript",14 years,Legacy system upgrade
+43,"Java, Machine Learning, PostgreSQL, React",15 years,Microservices architecture
+44,"Kubernetes, Machine Learning, Django, PostgreSQL",6 years,Database migration
+45,"Machine Learning, JavaScript, Flask, Node.js",2 years,Mobile app
+46,"C#, PostgreSQL, Java, Microservices",4 years,Database migration
+47,"Ruby, JavaScript, AWS, Node.js",8 years,Cloud infrastructure setup
+48,"Big Data, Spring Boot, Java, Machine Learning",10 years,Mobile app
+49,"Python, Node.js, MongoDB, C#",1 years,Database migration
+50,"Java, Microservices, JavaScript, Spring Boot",2 years,Legacy system upgrade
+51,"Flask, SQL, React, Machine Learning",13 years,Mobile app
+52,"Python, MongoDB, Flask, Spring Boot",13 years,E-commerce website
+53,"Ruby, Azure, PostgreSQL, Machine Learning",15 years,E-commerce website
+54,"C#, MongoDB, AWS, SQL",8 years,Front-end redesign
+55,"Kubernetes, Ruby, AWS, React",11 years,Front-end redesign
+56,"Go, MongoDB, Django, Ruby",11 years,Microservices architecture
+57,"Kubernetes, Python, Ruby, AWS",2 years,Cloud infrastructure setup
+58,"C#, Python, SQL, Microservices",8 years,Microservices architecture
+59,"Spring Boot, Flask, SQL, PostgreSQL",2 years,API development
+60,"Python, Microservices, SQL, React",9 years,API development
+61,"JavaScript, C#, Ruby, AWS",2 years,Legacy system upgrade
+62,"Node.js, SQL, Django, Kubernetes",5 years,Microservices architecture
+63,"Django, SQL, AWS, PostgreSQL",8 years,Cloud infrastructure setup
+64,"Microservices, JavaScript, Django, PostgreSQL",9 years,Microservices architecture
+65,"JavaScript, Big Data, Java, Kubernetes",14 years,Mobile app
+66,"Django, AWS, MongoDB, Machine Learning",5 years,Database migration
+67,"Go, AWS, MongoDB, SQL",1 years,Mobile app
+68,"Python, Java, AWS, Node.js",10 years,Cloud infrastructure setup
+69,"MongoDB, AWS, Big Data, React",15 years,Legacy system upgrade
+70,"Microservices, Python, Big Data, Node.js",12 years,Cloud infrastructure setup
+71,"Java, React, Kubernetes, SQL",6 years,Microservices architecture
+72,"AWS, Go, Flask, Java",5 years,Machine Learning model
+73,"React, Django, Python, Flask",10 years,Microservices architecture
+74,"AWS, Big Data, Django, Python",4 years,Mobile app
+75,"Machine Learning, Python, C#, PostgreSQL",1 years,Front-end redesign
+76,"Machine Learning, Big Data, Node.js, Spring Boot",3 years,Cloud infrastructure setup
+77,"Django, PostgreSQL, AWS, Big Data",6 years,Security audit
+78,"JavaScript, Python, Java, React",3 years,Cloud infrastructure setup
+79,"C#, Spring Boot, Go, Ruby",12 years,Microservices architecture
+80,"Django, AWS, Kubernetes, Azure",7 years,Cloud infrastructure setup
+81,"Django, SQL, Java, PostgreSQL",5 years,API development
+82,"Flask, Go, React, Azure",3 years,Front-end redesign
+83,"Machine Learning, Big Data, Python, Ruby",14 years,Security audit
+84,"AWS, Spring Boot, Java, Big Data",3 years,Security audit
+85,"Big Data, React, Java, MongoDB",13 years,Mobile app
+86,"Django, C#, Big Data, MongoDB",6 years,Front-end redesign
+87,"Kubernetes, Python, Ruby, MongoDB",4 years,Mobile app
+88,"Machine Learning, Kubernetes, Flask, React",5 years,Front-end redesign
+89,"Ruby, Flask, AWS, Spring Boot",13 years,E-commerce website
+90,"Azure, Microservices, C#, Machine Learning",3 years,Machine Learning model
+91,"Python, PostgreSQL, AWS, Django",10 years,API development
+92,"Big Data, Ruby, Kubernetes, Go",3 years,E-commerce website
+93,"Big Data, PostgreSQL, Java, AWS",10 years,Machine Learning model
+94,"Java, Azure, Ruby, PostgreSQL",6 years,Front-end redesign
+95,"MongoDB, Go, Big Data, PostgreSQL",12 years,Security audit
+96,"Node.js, PostgreSQL, AWS, JavaScript",2 years,Mobile app
+97,"PostgreSQL, Kubernetes, JavaScript, Machine Learning",11 years,Mobile app
+98,"SQL, PostgreSQL, Spring Boot, AWS",3 years,E-commerce website
+99,"Ruby, Go, PostgreSQL, Big Data",11 years,Machine Learning model
+100,"Go, Machine Learning, MongoDB, AWS",2 years,Database migration
+101,"Flask, Kubernetes, Go, Azure",8 years,E-commerce website
+102,"PostgreSQL, Java, Kubernetes, MongoDB",3 years,Cloud infrastructure setup
+103,"Go, C#, SQL, Big Data",12 years,Security audit
+104,"SQL, Machine Learning, Microservices, Ruby",3 years,Database migration
+105,"Java, JavaScript, Azure, AWS",15 years,Microservices architecture
+106,"MongoDB, C#, Azure, Big Data",3 years,Front-end redesign
+107,"Django, Python, Java, Spring Boot",5 years,Legacy system upgrade
+108,"Flask, JavaScript, Django, Big Data",4 years,Legacy system upgrade
+109,"Azure, SQL, Kubernetes, C#",7 years,Cloud infrastructure setup
+110,"Azure, Ruby, MongoDB, C#",10 years,Microservices architecture
+111,"Go, Spring Boot, Kubernetes, Java",5 years,Cloud infrastructure setup
+112,"Go, SQL, React, Java",14 years,Legacy system upgrade
+113,"Node.js, Microservices, JavaScript, Kubernetes",6 years,Machine Learning model
+114,"MongoDB, AWS, Node.js, PostgreSQL",6 years,Database migration
+115,"Ruby, Kubernetes, JavaScript, MongoDB",9 years,Security audit
+116,"Spring Boot, Node.js, Ruby, Java",2 years,Front-end redesign
+117,"Flask, AWS, Machine Learning, Go",10 years,Microservices architecture
+118,"Django, Microservices, Machine Learning, Azure",14 years,API development
+119,"Node.js, Kubernetes, React, Django",2 years,Microservices architecture
+120,"JavaScript, PostgreSQL, Node.js, Microservices",10 years,Mobile app
