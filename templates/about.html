@@ -20,8 +20,8 @@
             </ul>
         </nav>
         <div class="auth-buttons">
-            <a href="./login.html" class="btn login">Login</a>
-            <a href="./signup.html" class="btn signup">Sign Up</a>
+            <a href="{{url_for('login')}}" class="btn login">Login</a>
+            <a href="{{url_for('signup')}}" class="btn signup">Sign Up</a>
         </div>
     </header>
 
@@ -107,6 +107,6 @@
         </div>
     </footer>
 
-    <script src="../static/css/about.css"></script>
+    <script type="module" src="../static/css/about.css"></script>
 </body>
 </html> 

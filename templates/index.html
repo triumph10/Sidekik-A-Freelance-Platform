@@ -14,14 +14,21 @@
         </div>
         <nav class="main-nav">
             <ul>
-                <li><a href="./index.html" class="active">Home</a></li>
-                <li><a href="./about.html">About</a></li>
+                <li><a href="index.html" class="active">Home</a></li>
+                <li><a href="{{url_for('about')}}">About</a></li>
             </ul>
         </nav>
         <div class="auth-buttons">
-            <a href="./login.html" class="btn login">Login</a>
-            <a href="./signup.html" class="btn signup">Sign Up</a>
+            <span id="user-info" style="display: none;">
+                <span id="username">{{ session.get('full_name', 'User') }}</span>
+                <a href="{{ url_for('logout') }}" class="btn logout">Logout</a>
+            </span>
+            <span id="auth-links" style="display: none;">
+                <a href="{{ url_for('login') }}" class="btn login">Login</a>
+                <a href="{{ url_for('signup') }}" class="btn signup">Sign Up</a>
+            </span>
         </div>
+        
     </header>
 
     <main>
@@ -153,6 +160,7 @@
         </div>
     </footer>
 
-    <script src="../static/js/main.js"></script>
+    <script type="module" src="../static/js/main.js"></script>
+    <script type="module" src="static/js/auth.js"></script>
 </body>
 </html> 

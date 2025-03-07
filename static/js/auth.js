@@ -1,65 +1,132 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const loginForm = document.getElementById('loginForm');
-    const signupForm = document.getElementById('signupForm');
-    
-    if (loginForm) {
-        loginForm.addEventListener('submit', handleLogin);
-    }
-    
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+import CONFIG from "./config.js";
+
+// ✅ Initialize Supabase
+const supabase = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+
+document.addEventListener("DOMContentLoaded", async () => {
+    await checkUserSession();  // ✅ Only runs after the page has fully loaded
+
+    const signupForm = document.getElementById("signupForm");
+    const loginForm = document.getElementById("loginForm");
+
     if (signupForm) {
-        signupForm.addEventListener('submit', handleSignup);
+        signupForm.addEventListener("submit", handleSignup);
     }
-    
-    // Handle social login buttons
-    const socialButtons = document.querySelectorAll('.social-btn');
-    socialButtons.forEach(button => {
-        button.addEventListener('click', handleSocialAuth);
-    });
+
+    if (loginForm) {
+        loginForm.addEventListener("submit", handleLogin);
+    }
 });
 
-async function handleLogin(e) {
-    e.preventDefault();
-    
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    
-    try {
-        // Here you would typically make an API call to your backend
-        console.log('Login attempt:', { email, password });
-        
-        // Simulate successful login
-        alert('Login successful!');
-        window.location.href = 'index.html';
-    } catch (error) {
-        console.error('Login failed:', error);
-        alert('Login failed. Please try again.');
+
+
+async function checkUserSession() {
+    // ✅ Force refresh session to ensure no old session remains
+    await supabase.auth.refreshSession(); 
+
+    const { data: { user }, error } = await supabase.auth.getUser();
+
+    console.log("Checking user session:", user);
+
+    const userInfo = document.getElementById("user-info");
+    const authLinks = document.getElementById("auth-links");
+    const usernameSpan = document.getElementById("username");
+
+    if (user && user.user_metadata) {
+        console.log("User is logged in:", user.user_metadata.full_name);
+
+        if (userInfo) {
+            userInfo.style.display = "inline-block";
+            usernameSpan.textContent = user.user_metadata.full_name;
+        }
+        if (authLinks) authLinks.style.display = "none";
+    } else {
+        console.log("No user found, resetting session");
+
+        // ✅ Clear localStorage and sessionStorage to remove any old tokens
+        localStorage.clear();
+        sessionStorage.clear();
+
+        if (userInfo) userInfo.style.display = "none";
+        if (authLinks) authLinks.style.display = "inline-block";
     }
 }
 
-async function handleSignup(e) {
-    e.preventDefault();
+
+
+
+// ✅ Handle Signup
+async function handleSignup(event) {
+    event.preventDefault();
     
-    const fullName = document.getElementById('fullName').value;
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const accountType = document.getElementById('accountType').value;
-    
+    const fullName = document.getElementById("fullName").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const accountType = document.getElementById("accountType").value; // "hire" (Client) or "work" (Freelancer)
+
     try {
-        // Here you would typically make an API call to your backend
-        console.log('Signup attempt:', { fullName, email, password, accountType });
-        
-        // Simulate successful signup
-        alert('Account created successfully!');
-        window.location.href = 'login.html';
+        let { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: { data: { full_name: fullName, account_type: accountType } }
+        });
+
+        if (error) throw error;
+
+        // ✅ Store session in Flask
+        await fetch(`/set_session/${accountType}/${fullName}`);
+
+        window.location.href = "/index";  // ✅ Redirect to home
     } catch (error) {
-        console.error('Signup failed:', error);
-        alert('Signup failed. Please try again.');
+        console.error("Signup failed:", error.message);
+        alert("Signup failed. Please try again.");
     }
 }
 
-function handleSocialAuth(e) {
-    const provider = e.currentTarget.classList.contains('google') ? 'Google' : 'GitHub';
-    console.log(`${provider} authentication clicked`);
-    // Implement social authentication logic here
-    alert(`${provider} authentication coming soon!`);
-} 
+// ✅ Handle Login
+async function handleLogin(event) {
+    event.preventDefault();
+    
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    try {
+        let { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+        if (error) throw error;
+        const user = data.user;
+
+        if (!user) {
+            alert("Login failed. User not found.");
+            return;
+        }
+
+        // ✅ Store session in Flask
+        await fetch(`/set_session/${user.user_metadata.account_type}/${user.user_metadata.full_name}`);
+
+        window.location.href = "/index";  // ✅ Redirect to home
+    } catch (error) {
+        console.error("Login failed:", error.message);
+        alert("Login failed. Please try again.");
+    }
+}
+
+// ✅ Logout Function
+async function logout() {
+    console.log("Logging out...");
+
+    await supabase.auth.signOut(); // ✅ Logs out from Supabase
+
+    // ✅ Clear local storage, session storage, and Supabase cookies
+    localStorage.removeItem("sb-dlgjrgwhgysbdnrldcnn-auth-token");
+    sessionStorage.clear();
+    document.cookie = "sb-dlgjrgwhgysbdnrldcnn-auth-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    
+    console.log("Cleared session data");
+
+    // ✅ Redirect to login page
+    window.location.href = "/login";
+}
+
+

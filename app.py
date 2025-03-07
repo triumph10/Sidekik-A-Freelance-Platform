@@ -1,44 +1,77 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
-from supabase_config import supabase
+from flask import Flask, render_template, request, redirect, url_for, session, make_response
 
 app = Flask(__name__)
-app.secret_key = "iamironman"  # Change this for security
+app.secret_key = "iamironman"  # Change this to a strong secret key
 
-@app.route("/")
+@app.route('/')
+@app.route('/index')
 def home():
-    return render_template("index.html")
+    return render_template('index.html', username=session.get('username'))  # ✅ Pass username
 
-@app.route("/freelancer-dashboard")
-def freelancer_dashboard():
-    return render_template("freelancer-dashboard.html")
+@app.route('/about')
+def about():
+    return render_template('about.html')
 
-@app.route("/signup", methods=["GET", "POST"])
+@app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    if request.method == "POST":
-        full_name = request.form.get("fullName")
-        email = request.form.get("email")
-        password = request.form.get("password")
-        account_type = request.form.get("accountType")  # "hire" or "work"
+    if request.method == 'POST' and 'username' in request.form and 'email' in request.form and 'password' in request.form:
+        username = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
 
-        # Create user in Supabase Auth
-        response = supabase.auth.sign_up({"email": email, "password": password})
+        # ✅ Simulate saving user in database (replace with Supabase logic)
+        session['loggedin'] = True
+        session['username'] = username
+        session['account_type'] = request.form.get('accountType', 'hire')
 
-        if "error" in response:
-            flash("Signup failed: " + response["error"]["message"], "danger")
-            return redirect(url_for("signup"))
+        return redirect(url_for('home'))  # ✅ Redirect to index.html after signup
+    return render_template('signup.html')
 
-        # Store user in the database
-        user_id = response["user"]["id"]
-        data = {"id": user_id, "full_name": full_name, "email": email, "account_type": account_type}
-        supabase.table("users").insert(data).execute()
+# @app.route('/login')
+# def login():
+#     return render_template('login.html')
 
-        # Redirect based on user type
-        if account_type == "hire":
-            return redirect(url_for("home"))  # Redirect to index.html
-        elif account_type == "work":
-            return redirect(url_for("freelancer_dashboard"))  # Redirect to freelancer-dashboard.html
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST' and 'email' in request.form and 'password' in request.form:
+        email = request.form['email']
+        password = request.form['password']
 
-    return render_template("signup.html")
+        # ✅ Simulate user authentication (Replace with Supabase auth check)
+        if email == "test@example.com" and password == "password":
+            session['loggedin'] = True
+            session['username'] = "Test User"
+            session['account_type'] = "hire"  # Assume client login
+            return redirect(url_for('home'))
+        else:
+            return render_template('login.html', msg="Incorrect email/password!")
 
-if __name__ == "__main__":
-    app.run(port=5000, debug=True)
+    return render_template('login.html')
+
+@app.route('/freelancer-dashboard')
+def freelancer_dashboard():
+    if 'user' not in session or session.get('account_type') != 'work':
+        return redirect(url_for('login'))  # Redirect unauthorized users
+    return render_template('freelancer-dashboard.html')
+
+# ✅ Store session after signup/login
+@app.route('/set_session/<account_type>/<full_name>')
+def set_session(account_type, full_name):
+    session['user'] = True
+    session['account_type'] = account_type
+    session['full_name'] = full_name
+    return "Session set", 200
+
+@app.route('/logout')
+def logout():
+    session.clear()  # ✅ Clears session
+    response = make_response(redirect(url_for('login')))
+    
+    # ✅ Forcefully delete cookies to ensure proper logout
+    response.set_cookie('session', '', expires=0)
+    response.set_cookie('supabase-auth-token', '', expires=0)
+    
+    return response
+
+if __name__ == '__main__':
+    app.run(debug=True)

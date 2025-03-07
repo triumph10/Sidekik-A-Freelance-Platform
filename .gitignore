@@ -7,6 +7,9 @@ instance/*
 .webassets-cache
 .env
 
+#supabase details
+/static/js/config.js
+
 ### Flask.Python Stack ###
 # Byte-compiled / optimized / DLL files
 __pycache__/

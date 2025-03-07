@@ -4,34 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up - Side-kik</title>
-    <link rel="stylesheet" href="../static/css/main.css">
-    <link rel="stylesheet" href="../static/css/auth.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div class="auth-container">
         <div class="auth-card">
             <div class="auth-header">
-                <a href="index.html" class="logo">Side-kik</a>
+                <a href="{{ url_for('home') }}" class="logo">Side-kik</a>
                 <h2>Create Account</h2>
                 <p>Join our freelancing community</p>
             </div>
-            <form class="auth-form" id="signupForm" action="/signup" method="POST">
+            <form class="auth-form" id="signupForm" action="{{ url_for('signup') }}" method="POST">
                 <div class="form-group">
                     <label for="fullName">Full Name</label>
-                    <input type="text" id="fullName" required>
+                    <input type="text" id="fullName" name="username" required>
                 </div>
                 <div class="form-group">
                     <label for="email">Email</label>
-                    <input type="email" id="email" required>
+                    <input type="email" id="email" name="email" required>
                 </div>
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" required>
+                    <input type="password" id="password" name="password" required>
                 </div>
                 <div class="form-group">
                     <label for="accountType">I want to be a</label>
-                    <select id="accountType" required>
+                    <select id="accountType" name="accountType" required>
                         <option value="hire">Client</option>
                         <option value="work">Freelancer</option>
                     </select>
@@ -50,10 +50,13 @@
                 </div>
             </form>
             <p class="auth-footer">
-                Already have an account? <a href="login.html">Log in</a>
+                Already have an account? <a href="{{ url_for('login') }}">Log in</a>
             </p>
         </div>
     </div>
-    <script src="../static/js/auth.js"></script>
+
+    <script type="module" src="{{ url_for('static', filename='js/config.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/auth.js') }}"></script>
+
 </body>
-</html> 
+</html>
