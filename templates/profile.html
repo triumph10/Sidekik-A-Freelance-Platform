@@ -25,23 +25,17 @@
 
     <main class="profile-container">
         <section class="profile-header">
-            <div class="profile-cover">
-                <button class="edit-cover"><i class="fas fa-camera"></i> Edit Cover</button>
-            </div>
             <div class="profile-info">
                 <div class="profile-avatar">
                     <img src="images/default-avatar.png" alt="John Doe">
-                    <button class="edit-avatar"><i class="fas fa-camera"></i></button>
+                    
                 </div>
                 <div class="profile-details">
                     <div class="profile-text">
                         <h1>John Doe</h1>
                         <h2>Senior Full Stack Developer</h2>
                         <p class="location"><i class="fas fa-map-marker-alt"></i> New York, USA</p>
-                    </div>
-                    <div class="profile-actions">
-                        <button class="btn edit-profile">Edit Profile</button>
-                        <button class="btn share-profile"><i class="fas fa-share-alt"></i></button>
+                        <p class="email"><i class="fas fa-envelope"></i> john.doe@example.com</p>
                     </div>
                 </div>
             </div>
@@ -49,6 +43,16 @@
 
         <div class="profile-content">
             <section class="profile-main">
+                <div class="experience-section">
+                    <h3>Experience Level</h3>
+                    <p>Senior (5+ years)</p>
+                </div>
+
+                <div class="budget-section">
+                    <h3>Hourly Rate</h3>
+                    <p>$50-75 per hour</p>
+                </div>
+
                 <div class="about-section">
                     <h3>About Me</h3>
                     <p>Full-stack developer with 5+ years of experience in building scalable web applications. Specialized in React, Node.js, and cloud technologies. Passionate about creating efficient and user-friendly solutions.</p>
@@ -72,23 +76,15 @@
                         <!-- Project cards will be dynamically added here -->
                     </div>
                 </div>
+
+                <div class="portfolio-url-section">
+                    <h3>Portfolio URL</h3>
+                    <p><a href="https://portfolio.johndoe.dev" target="_blank">https://portfolio.johndoe.dev</a></p>
+                </div>
             </section>
 
             <aside class="profile-sidebar">
-                <div class="stats-card">
-                    <div class="stat-item">
-                        <span class="stat-value">4.9</span>
-                        <span class="stat-label">Rating</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-value">127</span>
-                        <span class="stat-label">Projects</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-value">98%</span>
-                        <span class="stat-label">Success Rate</span>
-                    </div>
-                </div>
+                
 
                 <div class="contact-card">
                     <h3>Contact Information</h3>

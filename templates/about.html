@@ -20,8 +20,17 @@
             </ul>
         </nav>
         <div class="auth-buttons">
-            <a href="{{url_for('login')}}" class="btn login">Login</a>
-            <a href="{{url_for('signup')}}" class="btn signup">Sign Up</a>
+            {% if session.get('loggedin') %}
+                <span id="user-info">
+                    <span id="username">{{ session.get('full_name') }}</span>
+                    <a href="{{ url_for('logout') }}" class="btn logout">Logout</a>
+                </span>
+            {% else %}
+                <span id="auth-links">
+                    <a href="{{ url_for('login') }}" class="btn login">Login</a>
+                    <a href="{{ url_for('signup') }}" class="btn signup">Sign Up</a>
+                </span>
+            {% endif %}
         </div>
     </header>
 
