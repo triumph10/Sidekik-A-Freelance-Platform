@@ -6,11 +6,11 @@ app.secret_key = "iamironman"  # Change this to a strong secret key
 @app.route('/')
 @app.route('/index')
 def home():
-    return render_template('index.html', username=session.get('username'))  # ✅ Pass username
+    return render_template('index.html', username=session.get('username'), loggedin=session.get('loggedin'))  # ✅ Pass username
 
 @app.route('/about')
 def about():
-    return render_template('about.html')
+    return render_template('about.html', username=session.get('username'), loggedin=session.get('loggedin'))
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -27,9 +27,7 @@ def signup():
         return redirect(url_for('home'))  # ✅ Redirect to index.html after signup
     return render_template('signup.html')
 
-# @app.route('/login')
-# def login():
-#     return render_template('login.html')
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -50,17 +48,24 @@ def login():
 
 @app.route('/freelancer-dashboard')
 def freelancer_dashboard():
-    if 'user' not in session or session.get('account_type') != 'work':
-        return redirect(url_for('login'))  # Redirect unauthorized users
-    return render_template('freelancer-dashboard.html')
+    print("Current session data:", session)  # ✅ Debugging step
 
-# ✅ Store session after signup/login
+    if 'loggedin' not in session or session.get('account_type') != 'work':
+        return redirect(url_for('login'))  # Redirect unauthorized users
+    
+    return render_template('freelancer-dashboard.html', username=session.get('full_name'))
+
+
 @app.route('/set_session/<account_type>/<full_name>')
 def set_session(account_type, full_name):
-    session['user'] = True
+    session['loggedin'] = True
     session['account_type'] = account_type
     session['full_name'] = full_name
-    return "Session set", 200
+
+    print("Session set successfully:", session)  # ✅ Debugging step
+
+    return "Session stored", 200  # ✅ Send a success response
+
 
 @app.route('/logout')
 def logout():
@@ -75,3 +80,5 @@ def logout():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
