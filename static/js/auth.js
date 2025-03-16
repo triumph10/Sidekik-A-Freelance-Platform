@@ -53,61 +53,20 @@ async function checkUserSession() {
     }
 }
 
-
-// // ✅ Handle Signup
-// async function handleSignup(event) {
-//     event.preventDefault();
-    
-//     const fullName = document.getElementById("fullName").value;
-//     const email = document.getElementById("email").value;
-//     const password = document.getElementById("password").value;
-//     const accountType = document.getElementById("accountType").value; // "hire" (Client) or "work" (Freelancer)
-
-//     try {
-//         let { data, error } = await supabase.auth.signUp({
-//             email,
-//             password,
-//             options: { data: { full_name: fullName, account_type: accountType } }
-//         });
-
-//         if (error) throw error;
-
-//         const userId = data.user.id; // Get User ID from Supabase Auth
-
-//         // ✅ Insert user details into the database table
-//         let { error: dbError } = await supabase
-//             .from("users")  // Ensure "users" is the correct table name
-//             .insert([{ id: userId, full_name: fullName, email: email, account_type: accountType }]);
-
-//         if (dbError) throw dbError;
-
-//         // ✅ Store session in Flask & Redirect properly
-//         await fetch(`/set_session/${accountType}/${fullName}`);
-
-//         if (accountType === "work") {
-//             window.location.href = "/freelancer-dashboard"; // Redirect freelancers
-//         } else {
-//             window.location.href = "/index"; // Redirect clients
-//         }
-//     } catch (error) {
-//         console.error("Signup failed:", error.message);
-//         alert("Signup failed. Please try again.");
-//     }
-// }
-
 async function handleSignup(event) {
     event.preventDefault();
 
     const fullName = document.getElementById("fullName").value;
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
-    let accountType = document.getElementById("accountType").value; // "hire" or "work"
+    let accountType = document.getElementById("accountType").value;
 
-    // ✅ Convert role to match database constraint
     accountType = accountType === "hire" ? "client" : "freelancer";
 
     try {
-        // ✅ Step 1: Sign up the user in Supabase Auth
+        console.log("🚀 Signing up...");
+
+        // ✅ Step 1: Sign up in Supabase Auth
         let { data, error } = await supabase.auth.signUp({
             email,
             password,
@@ -115,41 +74,68 @@ async function handleSignup(event) {
         });
 
         if (error) throw error;
-        const userId = data.user.id; // ✅ Get the Supabase Auth user ID
+        const userId = data.user.id;
 
-        // ✅ Step 2: Insert user details into "users" table (WITHOUT PASSWORD)
+        // ✅ Step 2: Store user in 'users' table
         let { error: insertError } = await supabase
             .from("users")
-            .insert([
-                {
-                    id: userId,  
-                    full_name: fullName,
-                    email: email,
-                    role: accountType,  // ✅ Role is now either "client" or "freelancer"
-                }
-            ]);
+            .insert([{ id: userId, full_name: fullName, email, role: accountType }]);
 
         if (insertError) throw insertError;
 
-        // ✅ Step 3: Store session & redirect properly
-        await fetch(`/set_session/${accountType}/${fullName}`);
-
+        // ✅ Step 3: If freelancer, create an entry in `freelancer_profiles`
         if (accountType === "freelancer") {
-            window.location.href = "/freelancer-dashboard"; // ✅ Redirect freelancers
-        } else {
-            window.location.href = "/index"; // ✅ Redirect clients
+            let { error: freelancerError } = await supabase
+                .from("freelancer_profiles")
+                .insert([{ id: userId, email }]);
+
+            if (freelancerError) throw freelancerError;
         }
+
+        // ✅ Step 4: Store session in Flask (VERY IMPORTANT)
+        console.log("🚀 Sending session data:", {
+            role: accountType,
+            full_name: fullName,
+            id: userId
+        });
+
+        let sessionResponse = await fetch("/set_session", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                role: accountType,
+                full_name: fullName,
+                id: userId
+            })
+        });
+
+        let sessionResult = await sessionResponse.json();
+        console.log("📌 Session Response:", sessionResult);
+
+        if (!sessionResponse.ok) {
+            throw new Error("❌ Session storage failed: " + sessionResult.error);
+        }
+
+        console.log("✅ Session stored successfully!");
+
+        // ✅ Step 5: Redirect to profile setup for freelancers
+        setTimeout(() => {
+            if (accountType === "freelancer") {
+                console.log("🔄 Redirecting to Profile Setup...");
+                window.location.replace("/profile-setup");
+            } else {
+                console.log("🔄 Redirecting to Home...");
+                window.location.replace("/index");
+            }
+        }, 500);
+
     } catch (error) {
-        console.error("Signup failed:", error.message);
+        console.error("❌ Signup failed:", error.message);
         alert("Signup failed. Please try again.");
     }
 }
 
 
-
-
-
-// ✅ Handle Login with Debugging
 async function handleLogin(event) {
     event.preventDefault();
     
@@ -157,6 +143,8 @@ async function handleLogin(event) {
     const password = document.getElementById("password").value;
 
     try {
+        console.log("🚀 Logging in...");
+
         let { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
         if (error) throw error;
@@ -167,32 +155,86 @@ async function handleLogin(event) {
             return;
         }
 
-        console.log("User logged in:", user.user_metadata);
+        console.log("✅ User logged in:", user);
 
-        // ✅ Ensure session is stored before redirecting
-        let sessionResponse = await fetch(`/set_session/${user.user_metadata.account_type}/${user.user_metadata.full_name}`);
-        let sessionData = await sessionResponse.text();
+        // ✅ Fetch user details from "users" table
+        let { data: userData, error: userError } = await supabase
+            .from("users") 
+            .select("id, full_name, role")  
+            .eq("id", user.id)
+            .single();
 
-        console.log("Session Response:", sessionData);  // ✅ Debugging step
-
-        if (sessionData.includes("Session stored")) {
-            // ✅ Proper redirection based on account type
-            if (user.user_metadata.account_type === "work") {
-                console.log("Redirecting to Freelancer Dashboard...");
-                window.location.href = "/freelancer-dashboard";
-            } else {
-                console.log("Redirecting to Home...");
-                window.location.href = "/index";
-            }
-        } else {
-            console.error("Session storage failed:", sessionData);
-            alert("Error storing session. Please try again.");
+        if (userError || !userData) {
+            console.error("❌ Error fetching user details:", userError);
+            alert("Error retrieving user information.");
+            return;
         }
+
+        console.log("📌 Retrieved User Data:", userData);
+
+        // ✅ Call Flask `/set_session`
+        console.log("🚀 Attempting to store session...");
+        let sessionResponse = await fetch("/set_session", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                role: userData.role,  
+                full_name: userData.full_name,
+                id: userData.id
+            }),
+        });
+
+        let result = await sessionResponse.json();
+        console.log("📌 Session Response:", result);
+
+        if (!sessionResponse.ok) {
+            throw new Error("❌ Session storage failed: " + result.error);
+        }
+
+        console.log("✅ Session stored successfully!");
+
+        // ✅ Redirect the user
+        setTimeout(() => {
+            if (userData.role === "freelancer") {
+                console.log("🔄 Redirecting to Freelancer Dashboard...");
+                window.location.replace("/freelancer-dashboard");
+            } else {
+                console.log("🔄 Redirecting to Home...");
+                window.location.replace("/index");
+            }
+        }, 500);
+        
     } catch (error) {
-        console.error("Login failed:", error.message);
+        console.error("❌ Login failed:", error.message);
         alert("Login failed. Please try again.");
     }
 }
+
+async function storeSession(accountType, fullName, userId) {
+    try {
+        let response = await fetch("/set_session", {  // ✅ Ensure this is correct!
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                account_type: accountType,
+                full_name: fullName,
+                user_id: userId
+            }),
+        });
+
+        let result = await response.json();
+        console.log("Session Response:", result);
+
+        if (!response.ok) {
+            throw new Error("Session storage failed: " + result.error);
+        }
+
+        console.log("✅ Session stored successfully!");
+    } catch (error) {
+        console.error("❌ Session storage failed:", error);
+    }
+}
+
 
 
 // ✅ Logout Function

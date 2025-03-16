@@ -19,7 +19,8 @@
             </ul>
         </nav>
         <div class="profile-menu">
-            <a href="./profile.html" class="username">John Doe</a>
+            <a href="{{ url_for('profile') }}" class="username">{{ username }}</a>
+            <a href="{{ url_for('logout') }}" class="btn logout">Logout</a>
         </div>
     </header>
 
@@ -52,7 +53,7 @@
             <div class="upload-section">
                 <h2>Project Management</h2>
                 <p>Upload new projects or manage existing ones</p>
-                <a href="./upload-project.html" class="btn upload-btn">
+                <a href="{{ url_for('upload_project') }}" class="btn upload-btn">
                     <i class="fas fa-plus"></i> Upload New Project
                 </a>
             </div>
@@ -65,7 +66,19 @@
             </div>
         </section>
     </main>
-
+    
+    <script type="module">
+        import CONFIG from "../static/js/config.js";  // ✅ Import Supabase config
+    
+        document.addEventListener("DOMContentLoaded", () => {
+            const profileLink = document.querySelector(".profile-menu a"); // Select the username link
+    
+            if (profileLink) {
+                profileLink.href = `/profile?supabaseUrl=${CONFIG.SUPABASE_URL}&supabaseKey=${CONFIG.SUPABASE_ANON_KEY}`;
+            }
+        });
+    </script>
+    
     <script type="module" src="..static/js/upload.js"></script>
 </body>
 </html> 

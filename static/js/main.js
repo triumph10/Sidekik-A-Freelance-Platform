@@ -5,7 +5,7 @@ const searchBtn = document.querySelector('.search-btn');
 searchBtn.addEventListener('click', () => {
     const searchTerm = searchInput.value.trim();
     if (searchTerm) {
-        // यहाँ API कॉल या सर्च लॉजिक जोड़ें
+      
         console.log('Searching for:', searchTerm);
     }
 });

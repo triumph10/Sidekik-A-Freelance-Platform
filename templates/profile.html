@@ -9,66 +9,68 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+    
     <header class="main-header">
         <div class="logo">
             <h1>Side-kik</h1>
         </div>
         <nav class="main-nav">
             <ul>
-                <li><a href="./freelancer-dashboard.html">Dashboard</a></li>
+                <li><a href="{{ url_for('freelancer_dashboard') }}">Dashboard</a></li>
             </ul>
         </nav>
         <div class="profile-menu">
-            <span class="username">John Doe</span>
+            <span class="username">{{ profile.full_name }}</span>
         </div>
     </header>
 
-    <main class="profile-container">
-        <section class="profile-header">
-            <div class="profile-info">
-                <div class="profile-avatar">
-                    <img src="images/default-avatar.png" alt="John Doe">
-                    
-                </div>
-                <div class="profile-details">
-                    <div class="profile-text">
-                        <h1>John Doe</h1>
-                        <h2>Senior Full Stack Developer</h2>
-                        <p class="location"><i class="fas fa-map-marker-alt"></i> New York, USA</p>
-                        <p class="email"><i class="fas fa-envelope"></i> john.doe@example.com</p>
+   
+
+        <main class="profile-container">
+            <section class="profile-header">
+                <div class="profile-info">
+                    <div class="profile-avatar">
+                        <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="{{ profile.full_name }}">
+                    </div>
+                    <div class="profile-details">
+                        <div class="profile-text">
+                            <h1>{{ profile.full_name }}</h1>
+                            <h2>{{ profile.bio }}</h2>
+                            <p class="email"><i class="fas fa-envelope"></i> {{ profile.email }}</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <div class="profile-content">
-            <section class="profile-main">
-                <div class="experience-section">
-                    <h3>Experience Level</h3>
-                    <p>Senior (5+ years)</p>
-                </div>
+       
 
-                <div class="budget-section">
-                    <h3>Hourly Rate</h3>
-                    <p>$50-75 per hour</p>
-                </div>
+                <div class="profile-content">
+                    <section class="profile-main">
+                        <div class="experience-section">
+                            <h3>Experience Level</h3>
+                            <p>{{ profile.experience }} years</p>
+                        </div>
+        
+                        <div class="budget-section">
+                            <h3>Hourly Rate</h3>
+                            <p>${{ profile.rate }} per hour</p>
+                        </div>
+        
+                        <div class="about-section">
+                            <h3>About Me</h3>
+                            <p>{{ profile.bio }}</p>
+                        </div>
+        
+                        <div class="skills-section">
+                            <h3>Skills</h3>
+                            <div class="skills-grid">
+                                {% for skill in profile.skills %}
+                                    <span class="skill-tag">{{ skill }}</span>
+                                {% endfor %}
 
-                <div class="about-section">
-                    <h3>About Me</h3>
-                    <p>Full-stack developer with 5+ years of experience in building scalable web applications. Specialized in React, Node.js, and cloud technologies. Passionate about creating efficient and user-friendly solutions.</p>
-                </div>
-
-                <div class="skills-section">
-                    <h3>Skills</h3>
-                    <div class="skills-grid">
-                        <span class="skill-tag">React</span>
-                        <span class="skill-tag">Node.js</span>
-                        <span class="skill-tag">MongoDB</span>
-                        <span class="skill-tag">AWS</span>
-                        <span class="skill-tag">TypeScript</span>
-                        <span class="skill-tag">Docker</span>
-                    </div>
-                </div>
+                            </div>
+                        </div>
+                    </section>
 
                 <div class="portfolio-section">
                     <h3>Portfolio Projects</h3>
@@ -89,7 +91,7 @@
                 <div class="contact-card">
                     <h3>Contact Information</h3>
                     <ul class="contact-list">
-                        <li><i class="fas fa-envelope"></i> john.doe@example.com</li>
+                        <li><i class="fas fa-envelope"></i> {{ profile.email }}</li>
                         <li><i class="fas fa-phone"></i> +1 (555) 123-4567</li>
                         <li><i class="fas fa-globe"></i> www.johndoe.dev</li>
                     </ul>

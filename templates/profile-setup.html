@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Setup - Side-Kik</title>
+    <link rel="stylesheet" href="../static/css/main.css">
+    <link rel="stylesheet" href="../static/css/profile-setup.css">
+</head>
+<body>
+    <div class="profile-setup-container">
+        <h2>Complete Your Freelancer Profile</h2>
+        <form id="profileForm">
+            <label for="bio">Bio:</label>
+            <textarea id="bio" name="bio" required></textarea>
+
+            <label for="skills">Skills:</label>
+            <input type="text" id="skills" name="skills" required>
+
+            <label for="availability">Availability:</label>
+            <select id="availability" name="availability">
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+            </select>
+
+            <label for="experience">Experience (years):</label>
+            <input type="number" id="experience" name="experience" required>
+
+            <label for="rate">Hourly Rate:</label>
+            <input type="number" id="rate" name="rate" required>
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <script type="module">
+        import CONFIG from "../static/js/config.js";
+        import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";  
+    
+        // ✅ Initialize Supabase
+        const supabase = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+    
+        document.getElementById("profileForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+    
+            // ✅ Refresh session before fetching user
+            await supabase.auth.refreshSession();
+            
+            // ✅ Get logged-in user
+            const { data: user, error: userError } = await supabase.auth.getUser();
+            if (!user || !user.user) {
+                alert("Unauthorized: Please log in again.");
+                return;
+            }
+    
+            const userId = user.user.id;  // ✅ Get authenticated user ID
+            const fullName = user.user.user_metadata.full_name;  // ✅ Get full name from metadata
+            const skillsInput = document.getElementById("skills").value.trim();
+            const availabilityInput = document.getElementById("availability").value.toLowerCase();
+    
+            if (availabilityInput !== "yes" && availabilityInput !== "no") {
+                alert("Invalid availability value. Must be 'yes' or 'no'.");
+                return;
+            }
+    
+            const data = {
+                id: userId,  
+                bio: document.getElementById("bio").value.trim(),
+                skills: skillsInput ? skillsInput.split(",").map(skill => skill.trim()) : [],  // ✅ Convert to array
+                availability: availabilityInput,  
+                experience: parseInt(document.getElementById("experience").value, 10) || 0,
+                rate: parseFloat(document.getElementById("rate").value) || 0.0,
+                education: "",  
+                version: 1  
+            };
+    
+            try {
+                console.log("🚀 Sending Data to Supabase:", data);  
+
+                 // ✅ Fix: Use upsert to prevent duplicate key errors
+                const { error: upsertError } = await supabase
+                    .from("freelancer_profiles")
+                        .upsert([data], { onConflict: ["id"] });  
+
+                if (upsertError) {
+                        console.error("❌ Supabase Error:", upsertError);
+                        alert(`Error saving profile: ${upsertError.message}`);
+                        return;
+                    }
+
+                    // ✅ Store session in Flask (VERY IMPORTANT)
+                    const sessionResponse = await fetch("/set_session", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ 
+                            role: "freelancer", 
+                            full_name: fullName, 
+                            id: userId 
+                        })
+                    });
+
+                    if (!sessionResponse.ok) {
+                        alert("Error storing session. Please try again.");
+                        return;
+                    }
+
+                    console.log("✅ Session Stored Successfully, Redirecting to Freelancer Dashboard...");
+                    window.location.href = "/freelancer-dashboard";
+
+                } catch (error) {
+                    console.error("❌ Request Failed:", error);
+                    alert("Something went wrong. Please try again.");
+                }
+
+        });
+    </script>
+
+</body>
+</html>
+
+
