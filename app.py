@@ -134,7 +134,11 @@ def freelancer_dashboard():
 def upload_project():
     return render_template('upload-project.html')
 
-
+@app.route('/recommendations')
+def recommendations():
+    if 'loggedin' not in session:
+        return redirect(url_for('login'))
+    return render_template('recommendations.html')
 
 @app.route('/set_session', methods=['POST'])
 def set_session():

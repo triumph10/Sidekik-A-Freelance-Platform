@@ -60,7 +60,7 @@
                 </div>
             </div>
             <div class="insight-blocks">
-                <div class="insight-block recommendations" onclick="window.location.href='recommendations.html'">
+                <a href="{{ url_for('recommendations') }}" class="insight-block recommendations">
                     <div class="insight-content">
                         <i class="fas fa-user-check"></i>
                         <h3>Freelancer Recommendations</h3>
@@ -83,7 +83,7 @@
                         </div>
                         <span class="view-more">View Recommendations <i class="fas fa-arrow-right"></i></span>
                     </div>
-                </div>
+                </a>
                 <div class="insight-block market-analysis" onclick="window.location.href='#market-analysis'">
                     <div class="insight-content">
                         <i class="fas fa-chart-bar"></i>
