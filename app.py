@@ -15,6 +15,8 @@ app.config["SECRET_KEY"] = "iamironman"  # Change to a strong secret key
 # Initialize Flask-Session
 Session(app)
 
+#----------------------------------------------------------------------------------------------------------------------
+
 @app.route('/')
 @app.route('/index')
 def home():
@@ -33,6 +35,8 @@ def home():
 def about():
     return render_template('about.html', username=session.get('username'), loggedin=session.get('loggedin'))
 
+#----------------------------------------------------------------------------------------------------------------------
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST' and 'username' in request.form and 'email' in request.form and 'password' in request.form:
@@ -48,6 +52,7 @@ def signup():
         return redirect(url_for('home'))  # ✅ Redirect to index.html after signup
     return render_template('signup.html')
 
+#----------------------------------------------------------------------------------------------------------------------
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -70,6 +75,8 @@ def login():
 
     return render_template('login.html')
 
+#----------------------------------------------------------------------------------------------------------------------
+
 @app.route('/profile-setup', methods=['GET'])
 def profile_setup():
     if 'loggedin' not in session or session.get('role') != 'freelancer':
@@ -79,7 +86,7 @@ def profile_setup():
     print("✅ Accessing Profile Setup Page")
     return render_template('profile-setup.html')
 
-
+#----------------------------------------------------------------------------------------------------------------------
 
 @app.route('/profile')
 def profile():
@@ -118,6 +125,7 @@ def profile():
 
     return render_template('profile.html', profile=profile)
 
+#----------------------------------------------------------------------------------------------------------------------
 
 @app.route('/freelancer-dashboard')
 def freelancer_dashboard():
@@ -130,15 +138,21 @@ def freelancer_dashboard():
 
     return render_template('freelancer-dashboard.html', username=session.get('full_name'))
 
+#----------------------------------------------------------------------------------------------------------------------
+
 @app.route('/upload-project')
 def upload_project():
     return render_template('upload-project.html')
+
+#----------------------------------------------------------------------------------------------------------------------
 
 @app.route('/recommendations')
 def recommendations():
     if 'loggedin' not in session:
         return redirect(url_for('login'))
     return render_template('recommendations.html')
+
+#----------------------------------------------------------------------------------------------------------------------
 
 @app.route('/set_session', methods=['POST'])
 def set_session():
@@ -170,6 +184,7 @@ def set_session():
         print("❌ Error in set_session:", str(e))
         return jsonify({"error": "Failed to store session", "details": str(e)}), 500  
 
+#----------------------------------------------------------------------------------------------------------------------
 
 @app.route('/logout')
 def logout():
