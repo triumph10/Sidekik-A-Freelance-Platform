@@ -1,9 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for, session, make_response, jsonify, session
+from flask import Flask, render_template, request, redirect, url_for, session, make_response, jsonify, session, send_from_directory
 from flask_session import Session
 from supabase import create_client
 import traceback 
+import os
+import subprocess
 
 app = Flask(__name__)
+app.secret_key = 'your-secret-key'  # Change this to a secure secret key
 
 # Configure Flask-Session to store sessions in the filesystem
 app.config["SESSION_TYPE"] = "filesystem"  # Stores session data in files
@@ -25,9 +28,15 @@ def home():
             return redirect(url_for('freelancer_dashboard'))
         elif session['role'] == "client":
             # return redirect(url_for('home'))
-            return render_template('index.html', username=session.get('username'))
+            return render_template('index.html', 
+                username=session.get('full_name'),
+                loggedin=session.get('loggedin', False)
+            )
     
-    return render_template('index.html', username=session.get('username'))
+    return render_template('index.html', 
+        username=session.get('full_name'),
+        loggedin=session.get('loggedin', False)
+    )
 
 @app.route('/about')
 def about():
@@ -134,7 +143,11 @@ def freelancer_dashboard():
 def upload_project():
     return render_template('upload-project.html')
 
-
+@app.route('/graph')
+def graph():
+    subprocess.run(["python", "fetch_skills.py"])
+    subprocess.run(["python", "fetch_trends.py"])
+    return render_template('graph.html')
 
 @app.route('/set_session', methods=['POST'])
 def set_session():
@@ -180,6 +193,12 @@ def logout():
 
     print("✅ Session cleared successfully")  # Debugging line
     return response
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static', 'images'),
+                             'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
 
 
 if __name__ == '__main__':

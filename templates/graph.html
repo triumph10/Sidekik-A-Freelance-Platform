@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Market Trends</title>
+    <link rel="icon" href="data:,">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Add Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+    <!-- Add Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/graph.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+    <!-- Replace include with inline header -->
+    <header class="main-header">
+        <div class="logo">
+            <h1>Side-kik</h1>
+        </div>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+            </ul>
+        </nav>
+        <div class="auth-buttons">
+            {% if session.get('loggedin') %}
+                <span id="user-info">
+                    <span id="username">{{ session.get('full_name', 'User') }}</span>
+                    <a href="{{ url_for('logout') }}" class="btn logout">Logout</a>
+                </span>
+            {% else %}
+                <span id="auth-links">
+                    <a href="{{ url_for('login') }}" class="btn login">Login</a>
+                    <a href="{{ url_for('signup') }}" class="btn signup">Sign Up</a>
+                </span>
+            {% endif %}
+        </div>
+    </header>
+
+    <div class="tech-background"></div>
+    
+    <div class="header">
+        <div class="header-content">
+            <h1><i class="fas fa-chart-network"></i> Tech Skills Analytics</h1>
+            <p class="subtitle">Real-time insights into the tech job market trends</p>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="chart-box">
+            <div class="chart-header">
+                <div class="chart-title">
+                    <h2><i class="fas fa-chart-bar"></i> Top 5 In-Demand Skills</h2>
+                    <p class="chart-description">Most requested skills in job postings</p>
+                </div>
+                <div class="chart-actions">
+                    <button class="chart-button" onclick="refreshData()">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button class="chart-button" onclick="downloadChart('skillsChart')">
+                        <i class="fas fa-download"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="skillsChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-box">
+            <div class="chart-header">
+                <div class="chart-title">
+                    <h2><i class="fas fa-chart-line"></i> Google Trends Data</h2>
+                    <p class="chart-description">Skill popularity trends over time</p>
+                </div>
+                <div class="chart-actions">
+                    <button class="chart-button" onclick="refreshData()">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button class="chart-button" onclick="downloadChart('TrendsChart')">
+                        <i class="fas fa-download"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="TrendsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Chart configuration and data loading
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                labels: {
+                    font: {
+                        family: "'Poppins', sans-serif",
+                        size: 12
+                    },
+                    padding: 20,
+                    usePointStyle: true,
+                    pointStyle: 'circle'
+                }
+            },
+            tooltip: {
+                backgroundColor: 'rgba(17, 25, 40, 0.9)',
+                titleFont: {
+                    family: "'Space Mono', monospace",
+                    size: 12
+                },
+                bodyFont: {
+                    family: "'Poppins', sans-serif",
+                    size: 12
+                },
+                padding: 12,
+                cornerRadius: 8,
+                displayColors: false
+            }
+        }
+    };
+
+    // Load skills data
+    fetch("{{ url_for('static', filename='data/skills.json') }}")
+        .then(response => response.json())
+        .then(data => {
+            const skills = data.top_skills;
+            const ctx = document.getElementById('skillsChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(skills),
+                    datasets: [{
+                        label: 'Job Postings Count',
+                        data: Object.values(skills),
+                        backgroundColor: [
+                            'rgba(37, 99, 235, 0.8)',
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(96, 165, 250, 0.8)',
+                            'rgba(147, 197, 253, 0.8)',
+                            'rgba(191, 219, 254, 0.8)'
+                        ],
+                        borderColor: 'rgba(37, 99, 235, 1)',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        maxBarThickness: 50
+                    }]
+                },
+                options: commonOptions
+            });
+        });
+
+    // Load trends data
+    fetch("{{ url_for('static', filename='data/trends_data.json') }}")
+        .then(response => response.json())
+        .then(data => {
+            const ctx2 = document.getElementById('TrendsChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: Object.keys(data),
+                    datasets: [{
+                        label: 'Interest Level',
+                        data: Object.values(data),
+                        backgroundColor: 'rgba(249, 115, 22, 0.2)',
+                        borderColor: 'rgba(249, 115, 22, 1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: commonOptions
+            });
+        });
+
+    function downloadChart(chartId) {
+        const canvas = document.getElementById(chartId);
+        const image = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.download = `${chartId}-data.png`;
+        link.href = image;
+        link.click();
+    }
+
+    function refreshData() {
+        const buttons = document.querySelectorAll('.fa-sync-alt');
+        buttons.forEach(button => {
+            button.classList.add('fa-spin');
+            setTimeout(() => button.classList.remove('fa-spin'), 1000);
+        });
+        // Add actual refresh logic here
+    }
+    </script>
+</body>
+</html>

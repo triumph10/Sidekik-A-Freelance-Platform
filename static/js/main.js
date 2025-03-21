@@ -5,7 +5,6 @@ const searchBtn = document.querySelector('.search-btn');
 searchBtn.addEventListener('click', () => {
     const searchTerm = searchInput.value.trim();
     if (searchTerm) {
-      
         console.log('Searching for:', searchTerm);
     }
 });
@@ -50,19 +49,34 @@ featureCards.forEach(card => {
     observer.observe(card);
 });
 
-// Add this to the existing JavaScript
+// Service cards functionality
 const serviceCards = document.querySelectorAll('.service-card');
 
 serviceCards.forEach(card => {
     card.addEventListener('click', () => {
-        // Navigate to service details page
-        // You can add the actual navigation logic here
         console.log('Service card clicked:', card.querySelector('h3').textContent);
     });
 });
 
-// Handle active navigation state
+// Authentication UI handling
+function updateAuthUI() {
+    const userInfo = document.getElementById('user-info');
+    const authLinks = document.getElementById('auth-links');
+    
+    const isLoggedIn = document.body.getAttribute('data-logged-in') === 'true';
+    
+    if (isLoggedIn) {
+        userInfo.style.display = 'inline-block';
+        authLinks.style.display = 'none';
+    } else {
+        userInfo.style.display = 'none';
+        authLinks.style.display = 'inline-block';
+    }
+}
+
+// Handle active navigation and initialization
 document.addEventListener('DOMContentLoaded', () => {
+    // Handle active navigation state
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
     const navLinks = document.querySelectorAll('.main-nav a');
     
@@ -72,4 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
             link.classList.add('active');
         }
     });
+
+    // Initialize auth UI
+    updateAuthUI();
 }); 
