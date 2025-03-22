@@ -77,6 +77,25 @@
             try {
                 console.log("🚀 Sending Data to Supabase:", data);  
 
+                // ✅ First, generate embedding on server
+                const embedResponse = await fetch("/generate_profile_embedding", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        bio: data.bio,
+                        skills: data.skills
+                    })
+                });
+
+                if (!embedResponse.ok) {
+                    console.error("❌ Embedding generation failed");
+                    alert("Error generating profile embedding. Please try again.");
+                    return;
+                }
+
+                const embedResult = await embedResponse.json();
+                data.embedding = embedResult.embedding;
+
                  // ✅ Fix: Use upsert to prevent duplicate key errors
                 const { error: upsertError } = await supabase
                     .from("freelancer_profiles")

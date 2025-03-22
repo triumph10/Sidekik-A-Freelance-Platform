@@ -74,6 +74,25 @@ form.addEventListener('submit', async (e) => {
         // Add debug log to check skills format
         console.log('Skills being sent:', formData.required_skills);
 
+        // Generate project embedding on server
+        const embedResponse = await fetch("/generate_project_embedding", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                title: formData.title,
+                description: formData.description,
+                required_skills: formData.required_skills
+            })
+        });
+
+        if (!embedResponse.ok) {
+            console.error("Embedding generation failed");
+            alert("Error generating project embedding. Please try again.");
+            return;
+        }
+
+        const embedResult = await embedResponse.json();
+
         const now = new Date().toISOString();
         const projectData = {
             title: formData.title,
@@ -84,7 +103,7 @@ form.addEventListener('submit', async (e) => {
             client_id: formData.client_id,
             created_at: now,
             updated_at: now,
-            embedding: null
+            embedding: embedResult.embedding
         };
 
         const { data, error: projectError } = await supabase
