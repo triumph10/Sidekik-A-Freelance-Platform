@@ -277,7 +277,10 @@ def find_matching_projects():
         if not profile_response.data or 'embedding' not in profile_response.data:
             return jsonify({"error": "Freelancer profile embedding not found"}), 404
         
+        # Get embedding and ensure it's 384 dimensions
         embedding = profile_response.data['embedding']
+        if len(embedding) > 384:
+            embedding = embedding[:384]  # Truncate to 384 if it's larger
         
         # Use direct SQL query with pgvector for similarity search
         query = """
@@ -347,6 +350,25 @@ def find_matching_freelancers():
         
         # If embedding exists, use vector similarity
         if 'embedding' in project_data and project_data['embedding']:
+            embedding = project_data['embedding']
+            
+            # Check if we need to handle dimension mismatch for the freelancer_profiles table
+            # This is a temporary compatibility layer
+            try:
+                sample = supabase.from_("freelancer_profiles").select("embedding").limit(1).execute()
+                if sample.data and sample.data[0].get('embedding') and len(sample.data[0]['embedding']) != len(embedding):
+                    # If dimensions don't match, adapt as needed
+                    target_dim = len(sample.data[0]['embedding'])
+                    if target_dim > len(embedding):
+                        # Pad with zeros
+                        embedding = embedding + [0] * (target_dim - len(embedding))
+                    else:
+                        # Truncate
+                        embedding = embedding[:target_dim]
+            except:
+                # If error, proceed with original embedding
+                pass
+            
             # Use direct SQL query with pgvector for similarity search
             query = """
             SELECT 
@@ -363,7 +385,7 @@ def find_matching_freelancers():
                 'query_with_embedding', 
                 {
                     'query_text': query, 
-                    'query_params': [project_data['embedding']]
+                    'query_params': [embedding]
                 }
             ).execute()
             
