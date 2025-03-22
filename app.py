@@ -3,6 +3,7 @@ from flask_session import Session
 from supabase import create_client
 import traceback 
 from utils import generate_profile_embedding, generate_project_embedding
+import config as CONFIG  # Direct import if it's a Python module
 
 app = Flask(__name__)
 
@@ -12,6 +13,10 @@ app.config["SESSION_PERMANENT"] = False  # Session expires when the browser is c
 app.config["SESSION_FILE_DIR"] = "./.flask_session/"  # Directory for session storage
 app.config["SESSION_USE_SIGNER"] = True  # Encrypts session cookies for security
 app.config["SECRET_KEY"] = "iamironman"  # Change to a strong secret key
+
+# Set Supabase credentials in app config
+app.config["SUPABASE_URL"] = CONFIG.SUPABASE_URL
+app.config["SUPABASE_ANON_KEY"] = CONFIG.SUPABASE_ANON_KEY
 
 # Initialize Flask-Session
 Session(app)
@@ -152,6 +157,19 @@ def recommendations():
     if 'loggedin' not in session:
         return redirect(url_for('login'))
     return render_template('recommendations.html')
+
+#----------------------------------------------------------------------------------------------------------------------
+
+@app.route('/project-matches')
+def project_matches():
+    if 'loggedin' not in session or session.get('role') != 'client':
+        return redirect(url_for('login'))
+    
+    project_id = request.args.get('project_id')
+    if not project_id:
+        return redirect(url_for('recommendations'))
+        
+    return render_template('project-matches.html')
 
 #----------------------------------------------------------------------------------------------------------------------
 
@@ -339,80 +357,133 @@ def find_matching_freelancers():
         return jsonify({"error": "Project ID not provided"}), 400
     
     try:
+        # Initialize Supabase client with configuration from the app
+        supabase_url = CONFIG.SUPABASE_URL if hasattr(CONFIG, 'SUPABASE_URL') else app.config.get('SUPABASE_URL')
+        supabase_key = CONFIG.SUPABASE_KEY if hasattr(CONFIG, 'SUPABASE_KEY') else app.config.get('SUPABASE_KEY')
+        supabase = create_client(supabase_url, supabase_key)
+        
         # Query Supabase for the project's embedding
-        supabase = create_client(app.config.get('SUPABASE_URL'), app.config.get('SUPABASE_KEY'))
         project_response = supabase.from_("projects").select("embedding,required_skills").eq("id", project_id).single().execute()
         
         if not project_response.data:
             return jsonify({"error": "Project not found"}), 404
         
         project_data = project_response.data
+        matching_freelancers = []
         
-        # If embedding exists, use vector similarity
+        # If embedding exists, use vector similarity with FAISS
         if 'embedding' in project_data and project_data['embedding']:
             embedding = project_data['embedding']
             
-            # Check if we need to handle dimension mismatch for the freelancer_profiles table
-            # This is a temporary compatibility layer
-            try:
-                sample = supabase.from_("freelancer_profiles").select("embedding").limit(1).execute()
-                if sample.data and sample.data[0].get('embedding') and len(sample.data[0]['embedding']) != len(embedding):
-                    # If dimensions don't match, adapt as needed
-                    target_dim = len(sample.data[0]['embedding'])
-                    if target_dim > len(embedding):
-                        # Pad with zeros
-                        embedding = embedding + [0] * (target_dim - len(embedding))
-                    else:
-                        # Truncate
-                        embedding = embedding[:target_dim]
-            except:
-                # If error, proceed with original embedding
-                pass
-            
-            # Use direct SQL query with pgvector for similarity search
-            query = """
-            SELECT 
-                id, bio, skills, experience, rate, availability,
-                1 - (embedding <=> $1) as similarity
-            FROM freelancer_profiles
-            WHERE embedding IS NOT NULL AND availability = 'yes'
-            ORDER BY embedding <=> $1
-            LIMIT 10
-            """
-            
-            # Execute the query directly through Supabase
-            freelancers_response = supabase.rpc(
-                'query_with_embedding', 
-                {
-                    'query_text': query, 
-                    'query_params': [embedding]
-                }
-            ).execute()
-            
-            if not freelancers_response.error:
-                return jsonify({"freelancers": freelancers_response.data}), 200
+            # Query for freelancer profiles with embeddings
+            profiles_response = supabase.from_("freelancer_profiles").select("*").execute()
+            if profiles_response.data:
+                # Import FAISS for similarity search
+                try:
+                    import numpy as np
+                    import faiss
+                    
+                    # Extract embeddings and IDs
+                    freelancer_ids = []
+                    embedding_matrix = []
+                    
+                    for profile in profiles_response.data:
+                        if 'embedding' in profile and profile['embedding'] and len(profile['embedding']) == len(embedding):
+                            freelancer_ids.append(profile['id'])
+                            embedding_matrix.append(profile['embedding'])
+                    
+                    if embedding_matrix:
+                        # Convert to numpy arrays
+                        embedding_matrix = np.array(embedding_matrix, dtype=np.float32)
+                        query_embedding = np.array([embedding], dtype=np.float32)
+                        
+                        # Create FAISS index
+                        dimension = len(embedding)
+                        index = faiss.IndexFlatL2(dimension)
+                        index.add(embedding_matrix)
+                        
+                        # Search for similar vectors
+                        k = min(10, len(freelancer_ids))  # Number of results to return
+                        distances, indices = index.search(query_embedding, k)
+                        
+                        # Convert distances to similarity scores (1.0 is perfect match)
+                        max_distance = np.max(distances) if distances.size > 0 else 1.0
+                        similarities = 1.0 - (distances[0] / max_distance)
+                        
+                        # Get the freelancer profiles for the top matches
+                        for i, idx in enumerate(indices[0]):
+                            if idx < len(freelancer_ids):
+                                freelancer_id = freelancer_ids[idx]
+                                for profile in profiles_response.data:
+                                    if profile['id'] == freelancer_id:
+                                        profile['similarity'] = float(similarities[i])
+                                        matching_freelancers.append(profile)
+                                        break
+                        
+                    # If FAISS search failed or found no results, fall back to skills-based matching
+                    if not matching_freelancers:
+                        print("FAISS search found no results, falling back to skills-based matching")
+                        matching_freelancers = skills_based_matching(profiles_response.data, project_data)
+                    
+                except (ImportError, Exception) as e:
+                    print(f"FAISS error: {str(e)}, falling back to skills-based matching")
+                    matching_freelancers = skills_based_matching(profiles_response.data, project_data)
+            else:
+                # No profiles found
+                return jsonify({"freelancers": []}), 200
+        else:
+            # No embedding, use skills-based matching
+            profiles_response = supabase.from_("freelancer_profiles").select("*").execute()
+            matching_freelancers = skills_based_matching(profiles_response.data, project_data)
         
-        # Fallback to skills-based matching if embedding search fails or isn't available
-        freelancers = supabase.from_("freelancer_profiles").select("*").eq("availability", "yes").execute().data
+        # Sort by similarity score
+        matching_freelancers.sort(key=lambda x: x.get('similarity', 0), reverse=True)
         
-        # Match based on skills if project has required_skills
-        if 'required_skills' in project_data and project_data['required_skills'] and freelancers:
-            project_skills = set(project_data['required_skills'].split(',')) if isinstance(project_data['required_skills'], str) else set()
-            
-            for freelancer in freelancers:
-                if 'skills' in freelancer and freelancer['skills']:
-                    freelancer_skills = set(freelancer['skills'])
-                    freelancer['similarity'] = len(project_skills.intersection(freelancer_skills))
-            
-            freelancers.sort(key=lambda x: x.get('similarity', 0), reverse=True)
-            return jsonify({"freelancers": freelancers[:10]}), 200
+        # Get user names for the matching freelancers
+        for freelancer in matching_freelancers:
+            if 'id' in freelancer:
+                user_response = supabase.from_("users").\
+                    select("full_name").\
+                    eq("id", freelancer['id']).\
+                    single().execute()
+                
+                if user_response.data:
+                    freelancer['full_name'] = user_response.data.get('full_name')
         
-        return jsonify({"freelancers": freelancers}), 200
+        return jsonify({"freelancers": matching_freelancers[:10]}), 200
         
     except Exception as e:
         print(f"Error finding matching freelancers: {str(e)}")
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
+
+def skills_based_matching(freelancers, project_data):
+    """Fall back to skills-based matching when vector similarity isn't available"""
+    matching_freelancers = []
+    
+    if 'required_skills' in project_data and project_data['required_skills'] and freelancers:
+        project_skills = set(project_data['required_skills'].split(',')) if isinstance(project_data['required_skills'], str) else set()
+        
+        for freelancer in freelancers:
+            if 'skills' in freelancer and freelancer['skills']:
+                # Convert to set for intersection calculation
+                freelancer_skills = set(freelancer['skills']) if isinstance(freelancer['skills'], list) else set(str(freelancer['skills']).split(','))
+                
+                # Calculate similarity based on skill overlap
+                skill_overlap = len(project_skills.intersection(freelancer_skills))
+                total_skills = len(project_skills.union(freelancer_skills))
+                
+                # Calculate Jaccard similarity
+                similarity = skill_overlap / total_skills if total_skills > 0 else 0
+                
+                # Add similarity score to freelancer data
+                freelancer_copy = dict(freelancer)
+                freelancer_copy['similarity'] = similarity
+                matching_freelancers.append(freelancer_copy)
+    
+    # Sort by similarity
+    matching_freelancers.sort(key=lambda x: x.get('similarity', 0), reverse=True)
+    return matching_freelancers[:10]
 
 if __name__ == '__main__':
     app.run(debug=True)

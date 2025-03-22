@@ -1,0 +1,203 @@
+/* Project Matches Page Styles */
+.matches-container {
+    display: flex;
+    padding: 2rem;
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Project Details Panel */
+.project-details-panel {
+    flex: 1;
+    max-width: 40%;
+}
+
+.project-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.project-header {
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 1rem;
+}
+
+.project-header h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.4rem;
+    color: #333;
+}
+
+.project-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.project-meta span {
+    padding: 0.3rem 0.6rem;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+}
+
+.project-body {
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.project-skills h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+    color: #555;
+}
+
+.skills-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.skill-tag {
+    background-color: #e9f7fe;
+    color: #0a85d1;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    display: inline-block;
+}
+
+/* Freelancers Panel */
+.freelancers-panel {
+    flex: 1;
+    max-width: 60%;
+}
+
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top-color: #0a85d1;
+    animation: spin 1s ease-in-out infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.freelancers-list {
+    display: none; /* Initially hidden, shown when data loads */
+}
+
+.freelancer-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.freelancer-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.freelancer-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 1rem;
+}
+
+.freelancer-name {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.freelancer-rate {
+    font-weight: bold;
+    color: #0a85d1;
+}
+
+.freelancer-bio {
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.freelancer-skills {
+    margin-bottom: 1rem;
+}
+
+.match-score {
+    display: inline-block;
+    margin-left: auto;
+    padding: 0.3rem 0.6rem;
+    background-color: #e3f8e9;
+    color: #28a745;
+    font-weight: bold;
+    border-radius: 4px;
+}
+
+.match-score.high {
+    background-color: #e3f8e9;
+    color: #28a745;
+}
+
+.match-score.medium {
+    background-color: #fff6e3;
+    color: #ffc107;
+}
+
+.match-score.low {
+    background-color: #ffe6e6;
+    color: #dc3545;
+}
+
+.contact-button {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: #0a85d1;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+}
+
+.contact-button:hover {
+    background-color: #0970b0;
+}
+
+/* Responsive design */
+@media (max-width: 900px) {
+    .matches-container {
+        flex-direction: column;
+    }
+    
+    .project-details-panel,
+    .freelancers-panel {
+        max-width: 100%;
+    }
+} 

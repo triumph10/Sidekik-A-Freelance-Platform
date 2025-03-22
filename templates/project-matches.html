@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freelancer Recommendations - Side-kik</title>
+    <link rel="stylesheet" href="../static/css/main.css">
+    <link rel="stylesheet" href="../static/css/matches.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="logo">
+            <h1>Side-kik</h1>
+        </div>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="/index">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/recommendations">Post New Project</a></li>
+            </ul>
+        </nav>
+        <div class="auth-buttons" id="authButtons">
+            <!-- Buttons will be added by JavaScript -->
+        </div>
+    </header>
+
+    <main class="matches-container">
+        <div class="project-details-panel">
+            <h2>Your Project</h2>
+            <div class="project-card" id="projectCard">
+                <div class="project-header">
+                    <h3 id="projectTitle">Loading...</h3>
+                    <div class="project-meta">
+                        <span class="budget" id="projectBudget">Budget: Loading...</span>
+                        <span class="duration" id="projectDuration">Duration: Loading...</span>
+                    </div>
+                </div>
+                <div class="project-body">
+                    <p id="projectDescription">Loading...</p>
+                </div>
+                <div class="project-skills">
+                    <h4>Required Skills:</h4>
+                    <div class="skills-tags" id="projectSkills">
+                        <!-- Skills will be added here by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="freelancers-panel">
+            <h2>Recommended Freelancers</h2>
+            <div class="loading-container" id="loadingContainer">
+                <div class="loading-spinner"></div>
+                <p>Finding the perfect match for your project...</p>
+            </div>
+            <div class="freelancers-list" id="freelancersList">
+                <!-- Freelancers will be added here by JavaScript -->
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="../static/js/project-matches.js"></script>
+</body>
+</html> 

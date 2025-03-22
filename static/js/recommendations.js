@@ -117,12 +117,24 @@ form.addEventListener('submit', async (e) => {
         }
 
         console.log("Project inserted successfully:", data);
-        alert("Project posted successfully!");
         
-        // Clear form
-        form.reset();
-        skills.clear();
-        skillsTags.innerHTML = '';
+        // Store session data in Flask
+        const sessionResponse = await fetch("/set_session", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                role: "client", 
+                full_name: user.user_metadata.full_name, 
+                id: user.id 
+            })
+        });
+
+        if (!sessionResponse.ok) {
+            console.error("Error storing session");
+        }
+        
+        // Redirect to the project matches page with the new project ID
+        window.location.href = `/project-matches?project_id=${data[0].id}`;
         
     } catch (error) {
         console.error('Error details:', error);
