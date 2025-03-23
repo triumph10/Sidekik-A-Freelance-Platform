@@ -4,6 +4,8 @@ from supabase import create_client
 import traceback 
 from utils import generate_profile_embedding, generate_project_embedding
 import config as CONFIG  # Direct import if it's a Python module
+import numpy as np
+import faiss
 
 app = Flask(__name__)
 
@@ -357,82 +359,172 @@ def find_matching_freelancers():
         return jsonify({"error": "Project ID not provided"}), 400
     
     try:
+        print(f"📊 Finding matches for project ID: {project_id}")
+        
         # Initialize Supabase client with configuration from the app
         supabase_url = CONFIG.SUPABASE_URL if hasattr(CONFIG, 'SUPABASE_URL') else app.config.get('SUPABASE_URL')
         supabase_key = CONFIG.SUPABASE_KEY if hasattr(CONFIG, 'SUPABASE_KEY') else app.config.get('SUPABASE_KEY')
         supabase = create_client(supabase_url, supabase_key)
         
         # Query Supabase for the project's embedding
-        project_response = supabase.from_("projects").select("embedding,required_skills").eq("id", project_id).single().execute()
+        print(f"🔍 Fetching project data for ID: {project_id}")
+        project_response = supabase.from_("projects").select("*").eq("id", project_id).single().execute()
         
         if not project_response.data:
+            print(f"❌ Project not found with ID: {project_id}")
             return jsonify({"error": "Project not found"}), 404
         
         project_data = project_response.data
+        print(f"✅ Found project: {project_data.get('title', 'Untitled')}")
+        
         matching_freelancers = []
         
         # If embedding exists, use vector similarity with FAISS
-        if 'embedding' in project_data and project_data['embedding']:
+        if 'embedding' in project_data and project_data['embedding'] and isinstance(project_data['embedding'], list):
             embedding = project_data['embedding']
+            print(f"📊 Project has embedding with length: {len(embedding)}")
+            
+            # Ensure project embedding is exactly 384 dimensions
+            if len(embedding) != 384:
+                print(f"⚠️ Project embedding has incorrect dimensions: {len(embedding)}, truncating to 384")
+                if len(embedding) > 384:
+                    embedding = embedding[:384]  # Truncate if too long
+                else:
+                    # Pad with zeros if too short
+                    embedding = embedding + [0.0] * (384 - len(embedding))
+                
+                # Normalize the embedding
+                norm = np.linalg.norm(embedding)
+                if norm > 0:
+                    embedding = [float(val / norm) for val in embedding]
+                
+                print(f"✅ Project embedding normalized to {len(embedding)} dimensions")
+                
+                # Update the project with the normalized embedding
+                try:
+                    supabase.from_("projects").update({"embedding": embedding}).eq("id", project_id).execute()
+                    print(f"✅ Updated project embedding in database")
+                except Exception as e:
+                    print(f"⚠️ Could not update project embedding: {str(e)}")
             
             # Query for freelancer profiles with embeddings
+            print("🔍 Fetching all freelancer profiles")
             profiles_response = supabase.from_("freelancer_profiles").select("*").execute()
-            if profiles_response.data:
-                # Import FAISS for similarity search
-                try:
-                    import numpy as np
-                    import faiss
-                    
-                    # Extract embeddings and IDs
-                    freelancer_ids = []
-                    embedding_matrix = []
-                    
-                    for profile in profiles_response.data:
-                        if 'embedding' in profile and profile['embedding'] and len(profile['embedding']) == len(embedding):
-                            freelancer_ids.append(profile['id'])
-                            embedding_matrix.append(profile['embedding'])
-                    
-                    if embedding_matrix:
-                        # Convert to numpy arrays
-                        embedding_matrix = np.array(embedding_matrix, dtype=np.float32)
-                        query_embedding = np.array([embedding], dtype=np.float32)
+            
+            if not profiles_response.data:
+                print("⚠️ No freelancer profiles found")
+                return jsonify({"freelancers": []}), 200
+                
+            print(f"✅ Found {len(profiles_response.data)} freelancer profiles")
+            
+            # Import FAISS for similarity search
+            try:
+                import numpy as np
+                import faiss
+                print("📊 Using FAISS for vector similarity matching")
+                
+                # Extract embeddings and IDs
+                freelancer_ids = []
+                embedding_matrix = []
+                valid_profiles = []
+                
+                for profile in profiles_response.data:
+                    if 'embedding' in profile and profile['embedding'] and isinstance(profile['embedding'], list):
+                        # Ensure embedding dimensions match
+                        profile_embedding = profile['embedding']
                         
-                        # Create FAISS index
-                        dimension = len(embedding)
-                        index = faiss.IndexFlatL2(dimension)
-                        index.add(embedding_matrix)
+                        # Debug embedding dimensions
+                        print(f"🔍 Freelancer {profile.get('id')}: Embedding length = {len(profile_embedding)}")
                         
-                        # Search for similar vectors
-                        k = min(10, len(freelancer_ids))  # Number of results to return
-                        distances, indices = index.search(query_embedding, k)
+                        # Normalize freelancer embedding to 384 dimensions
+                        if len(profile_embedding) != 384:
+                            print(f"⚠️ Freelancer embedding has incorrect dimensions: {len(profile_embedding)}, fixing...")
+                            
+                            if len(profile_embedding) > 384:
+                                profile_embedding = profile_embedding[:384]  # Truncate if too long
+                            else:
+                                # Pad with zeros if too short
+                                profile_embedding = profile_embedding + [0.0] * (384 - len(profile_embedding))
+                            
+                            # Normalize the embedding
+                            norm = np.linalg.norm(profile_embedding)
+                            if norm > 0:
+                                profile_embedding = [float(val / norm) for val in profile_embedding]
+                            
+                            # Update the profile with the normalized embedding
+                            try:
+                                supabase.from_("freelancer_profiles").update({"embedding": profile_embedding}).eq("id", profile.get('id')).execute()
+                                print(f"✅ Updated freelancer embedding in database")
+                            except Exception as e:
+                                print(f"⚠️ Could not update freelancer embedding: {str(e)}")
                         
-                        # Convert distances to similarity scores (1.0 is perfect match)
-                        max_distance = np.max(distances) if distances.size > 0 else 1.0
-                        similarities = 1.0 - (distances[0] / max_distance)
+                        # Add to matrix for FAISS
+                        freelancer_ids.append(profile['id'])
+                        embedding_matrix.append(profile_embedding)
+                        valid_profiles.append(profile)
+                
+                print(f"✅ Found {len(embedding_matrix)} freelancers with valid embeddings")
+                
+                if embedding_matrix:
+                    # Convert to numpy arrays
+                    embedding_matrix = np.array(embedding_matrix, dtype=np.float32)
+                    query_embedding = np.array([embedding], dtype=np.float32)
+                    
+                    # Create FAISS index
+                    dimension = len(embedding)
+                    print(f"📊 Creating FAISS index with dimension: {dimension}")
+                    index = faiss.IndexFlatL2(dimension)
+                    index.add(embedding_matrix)
+                    
+                    # Search for similar vectors
+                    k = min(10, len(freelancer_ids))  # Number of results to return
+                    print(f"🔍 Searching for top {k} matches")
+                    distances, indices = index.search(query_embedding, k)
+                    
+                    # Convert distances to similarity scores (0-100%)
+                    # Lower distance = higher similarity
+                    if distances.size > 0:
+                        # Find max distance for normalization
+                        max_distance = np.max(distances) if np.max(distances) > 0 else 1.0
+                        print(f"📊 Max distance: {max_distance}")
                         
                         # Get the freelancer profiles for the top matches
                         for i, idx in enumerate(indices[0]):
                             if idx < len(freelancer_ids):
-                                freelancer_id = freelancer_ids[idx]
-                                for profile in profiles_response.data:
-                                    if profile['id'] == freelancer_id:
-                                        profile['similarity'] = float(similarities[i])
-                                        matching_freelancers.append(profile)
-                                        break
-                        
-                    # If FAISS search failed or found no results, fall back to skills-based matching
-                    if not matching_freelancers:
-                        print("FAISS search found no results, falling back to skills-based matching")
-                        matching_freelancers = skills_based_matching(profiles_response.data, project_data)
-                    
-                except (ImportError, Exception) as e:
-                    print(f"FAISS error: {str(e)}, falling back to skills-based matching")
+                                # Calculate similarity score (0-100%)
+                                # Using exponential decay for better scaling
+                                distance = distances[0][i]
+                                similarity = 100 * np.exp(-distance / max_distance)
+                                
+                                # Cap similarity at 100%
+                                similarity = min(similarity, 100.0)
+                                
+                                # Get the corresponding profile
+                                profile = valid_profiles[idx]
+                                
+                                # Add similarity score
+                                profile_copy = dict(profile)
+                                profile_copy['similarity'] = float(similarity)
+                                profile_copy['similarity_formatted'] = f"{similarity:.1f}%"
+                                
+                                print(f"✅ Match: Freelancer {profile_copy.get('id')} with similarity {similarity:.1f}%")
+                                matching_freelancers.append(profile_copy)
+                    else:
+                        print("⚠️ FAISS search returned no distances")
+                
+                # If FAISS search failed or found no results, fall back to skills-based matching
+                if not matching_freelancers:
+                    print("⚠️ FAISS search found no results, falling back to skills-based matching")
                     matching_freelancers = skills_based_matching(profiles_response.data, project_data)
-            else:
-                # No profiles found
-                return jsonify({"freelancers": []}), 200
+                
+            except Exception as e:
+                print(f"❌ FAISS error: {str(e)}")
+                traceback.print_exc()
+                print("⚠️ Falling back to skills-based matching")
+                matching_freelancers = skills_based_matching(profiles_response.data, project_data)
         else:
             # No embedding, use skills-based matching
+            print("⚠️ No project embedding found, using skills-based matching")
             profiles_response = supabase.from_("freelancer_profiles").select("*").execute()
             matching_freelancers = skills_based_matching(profiles_response.data, project_data)
         
@@ -441,7 +533,7 @@ def find_matching_freelancers():
         
         # Get user names for the matching freelancers
         for freelancer in matching_freelancers:
-            if 'id' in freelancer:
+            if 'id' in freelancer and not freelancer.get('full_name'):
                 user_response = supabase.from_("users").\
                     select("full_name").\
                     eq("id", freelancer['id']).\
@@ -450,42 +542,85 @@ def find_matching_freelancers():
                 if user_response.data:
                     freelancer['full_name'] = user_response.data.get('full_name')
         
+        print(f"✅ Returning {len(matching_freelancers[:10])} matching freelancers")
         return jsonify({"freelancers": matching_freelancers[:10]}), 200
         
     except Exception as e:
-        print(f"Error finding matching freelancers: {str(e)}")
+        print(f"❌ Error finding matching freelancers: {str(e)}")
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 def skills_based_matching(freelancers, project_data):
     """Fall back to skills-based matching when vector similarity isn't available"""
+    print("📊 Performing skills-based matching")
     matching_freelancers = []
     
     if 'required_skills' in project_data and project_data['required_skills'] and freelancers:
-        project_skills = set(project_data['required_skills'].split(',')) if isinstance(project_data['required_skills'], str) else set()
+        # Parse project skills based on data type
+        project_skills = set()
+        if isinstance(project_data['required_skills'], str):
+            project_skills = set(skill.strip().lower() for skill in project_data['required_skills'].split(',') if skill.strip())
+        elif isinstance(project_data['required_skills'], list):
+            project_skills = set(skill.lower() for skill in project_data['required_skills'] if skill)
         
-        for freelancer in freelancers:
-            if 'skills' in freelancer and freelancer['skills']:
-                # Convert to set for intersection calculation
-                freelancer_skills = set(freelancer['skills']) if isinstance(freelancer['skills'], list) else set(str(freelancer['skills']).split(','))
-                
-                # Calculate similarity based on skill overlap
-                skill_overlap = len(project_skills.intersection(freelancer_skills))
-                total_skills = len(project_skills.union(freelancer_skills))
-                
-                # Calculate Jaccard similarity
-                similarity = skill_overlap / total_skills if total_skills > 0 else 0
-                
-                # Add similarity score to freelancer data
-                freelancer_copy = dict(freelancer)
-                freelancer_copy['similarity'] = similarity
-                matching_freelancers.append(freelancer_copy)
+        print(f"📊 Project skills: {project_skills}")
+        
+        # Only proceed if we have project skills
+        if project_skills:
+            for freelancer in freelancers:
+                if 'skills' in freelancer and freelancer['skills']:
+                    # Parse freelancer skills based on data type
+                    freelancer_skills = set()
+                    if isinstance(freelancer['skills'], list):
+                        freelancer_skills = set(skill.lower() for skill in freelancer['skills'] if skill)
+                    elif isinstance(freelancer['skills'], str):
+                        freelancer_skills = set(skill.strip().lower() for skill in freelancer['skills'].split(',') if skill.strip())
+                    
+                    print(f"🔍 Freelancer {freelancer.get('id')}: Skills = {freelancer_skills}")
+                    
+                    # Skip if no valid skills
+                    if not freelancer_skills:
+                        continue
+                    
+                    # Calculate skill overlap
+                    matching_skills = project_skills.intersection(freelancer_skills)
+                    
+                    # More flexible matching: check for partial matches
+                    if not matching_skills:
+                        for p_skill in project_skills:
+                            for f_skill in freelancer_skills:
+                                # Check if project skill is part of freelancer skill or vice versa
+                                if (p_skill in f_skill or f_skill in p_skill) and len(p_skill) > 2 and len(f_skill) > 2:
+                                    matching_skills.add(p_skill)
+                    
+                    # Only consider freelancers with at least one matching skill
+                    if matching_skills:
+                        # Calculate similarity score (0-100%)
+                        # Using skill coverage of project requirements
+                        skill_coverage = len(matching_skills) / len(project_skills)
+                        similarity = skill_coverage * 100
+                        
+                        # Cap similarity at 100%
+                        similarity = min(similarity, 100.0)
+                        
+                        print(f"✅ Skills match: Freelancer {freelancer.get('id')} with similarity {similarity:.1f}%, matching skills: {matching_skills}")
+                        
+                        # Add freelancer with similarity score
+                        freelancer_copy = dict(freelancer)
+                        freelancer_copy['similarity'] = float(similarity)
+                        freelancer_copy['similarity_formatted'] = f"{similarity:.1f}%"
+                        matching_freelancers.append(freelancer_copy)
+        else:
+            print("⚠️ No valid project skills found for matching")
+    else:
+        print("⚠️ Missing required skills or freelancers for matching")
     
     # Sort by similarity
     matching_freelancers.sort(key=lambda x: x.get('similarity', 0), reverse=True)
+    print(f"✅ Found {len(matching_freelancers[:10])} skills-based matches")
     return matching_freelancers[:10]
+
+#----------------------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-

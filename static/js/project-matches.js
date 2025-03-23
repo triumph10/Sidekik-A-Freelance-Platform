@@ -140,6 +140,8 @@ async function loadProjectDetails(projectId) {
 
 async function loadMatchingFreelancers(projectId) {
     try {
+        console.log(`Loading matching freelancers for project: ${projectId}`);
+        
         // Fetch matching freelancers from Flask backend
         const response = await fetch(`/find_matching_freelancers?project_id=${projectId}`);
         
@@ -148,6 +150,7 @@ async function loadMatchingFreelancers(projectId) {
         }
         
         const data = await response.json();
+        console.log("Received freelancer data:", data);
         
         // Hide loading spinner
         document.getElementById('loadingContainer').style.display = 'none';
@@ -158,6 +161,7 @@ async function loadMatchingFreelancers(projectId) {
         
         // Check if we got any freelancers
         if (!data.freelancers || data.freelancers.length === 0) {
+            console.log("No matching freelancers found");
             freelancersList.innerHTML = `
                 <div class="no-results">
                     <p>No matching freelancers found for your project.</p>
@@ -167,32 +171,57 @@ async function loadMatchingFreelancers(projectId) {
             return;
         }
         
+        console.log(`Found ${data.freelancers.length} matching freelancers`);
+        
         // Generate freelancer cards
         freelancersList.innerHTML = data.freelancers.map(freelancer => {
-            // Determine match score class
+            console.log(`Processing freelancer: ${freelancer.id}, similarity: ${freelancer.similarity}`);
+            
+            // Determine match score class based on percentage (0-100 scale)
             let matchScoreClass = 'low';
-            if (freelancer.similarity >= 0.7) {
+            const similarity = parseFloat(freelancer.similarity);
+            
+            if (similarity >= 70) {
                 matchScoreClass = 'high';
-            } else if (freelancer.similarity >= 0.4) {
+            } else if (similarity >= 40) {
                 matchScoreClass = 'medium';
             }
             
-            // Format match percentage
-            const matchPercentage = Math.round(freelancer.similarity * 100);
+            // Format match percentage (already in percentage format from server)
+            const matchPercentage = Math.round(similarity);
+            
+            // Handle skills regardless of format (array or string)
+            let skillsArray = [];
+            if (freelancer.skills) {
+                if (Array.isArray(freelancer.skills)) {
+                    skillsArray = freelancer.skills;
+                } else if (typeof freelancer.skills === 'string') {
+                    skillsArray = freelancer.skills.split(',').map(s => s.trim()).filter(s => s);
+                }
+            }
             
             // Create skills HTML
-            const skillsHtml = freelancer.skills && freelancer.skills.length > 0
-                ? freelancer.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')
+            const skillsHtml = skillsArray.length > 0
+                ? skillsArray.map(skill => `<span class="skill-tag">${skill}</span>`).join('')
                 : '<span class="no-skills">No skills listed</span>';
+            
+            // Format rate with fallback
+            const rate = freelancer.rate ? parseFloat(freelancer.rate) : 0;
             
             return `
                 <div class="freelancer-card">
                     <div class="freelancer-header">
                         <h3 class="freelancer-name">${freelancer.full_name || 'Unnamed Freelancer'}</h3>
-                        <span class="freelancer-rate">$${freelancer.rate}/hr</span>
+                        <span class="freelancer-rate">$${rate}/hr</span>
                     </div>
                     <div class="freelancer-bio">
                         <p>${freelancer.bio || 'No bio provided'}</p>
+                    </div>
+                    <div class="freelancer-experience">
+                        <p><strong>Experience:</strong> ${freelancer.experience || 'Not specified'}</p>
+                    </div>
+                    <div class="freelancer-availability">
+                        <p><strong>Availability:</strong> ${freelancer.availability || 'Not specified'}</p>
                     </div>
                     <div class="freelancer-skills">
                         <h4>Skills:</h4>
@@ -230,4 +259,4 @@ function showError(message) {
             <a href="/recommendations" class="btn">Go Back</a>
         </div>
     `;
-} 
+}
