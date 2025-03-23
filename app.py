@@ -16,7 +16,7 @@ app.config["SECRET_KEY"] = "iamironman"  # Change to a strong secret key
 
 # Set Supabase credentials in app config
 app.config["SUPABASE_URL"] = CONFIG.SUPABASE_URL
-app.config["SUPABASE_ANON_KEY"] = CONFIG.SUPABASE_ANON_KEY
+app.config["SUPABASE_KEY"] = CONFIG.SUPABASE_KEY
 
 # Initialize Flask-Session
 Session(app)
