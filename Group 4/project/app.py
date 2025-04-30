@@ -6,6 +6,7 @@ from utils import generate_profile_embedding, generate_project_embedding
 import config as CONFIG  # Direct import if it's a Python module
 import numpy as np
 import faiss
+from bio_analyzer import analyze_bio_quality  # Import the bio analyzer
 
 app = Flask(__name__)
 
@@ -619,6 +620,29 @@ def skills_based_matching(freelancers, project_data):
     matching_freelancers.sort(key=lambda x: x.get('similarity', 0), reverse=True)
     print(f"✅ Found {len(matching_freelancers[:10])} skills-based matches")
     return matching_freelancers[:10]
+
+#----------------------------------------------------------------------------------------------------------------------
+
+@app.route('/check_bio_quality', methods=['POST'])
+def check_bio_quality():
+    """
+    Endpoint to check the quality of a freelancer's bio and provide feedback
+    """
+    try:
+        data = request.get_json()
+        bio_text = data.get('bio', '')
+        
+        if not bio_text:
+            return jsonify({"error": "No bio text provided"}), 400
+            
+        # Analyze the bio quality
+        analysis = analyze_bio_quality(bio_text)
+        
+        return jsonify(analysis)
+    except Exception as e:
+        print(f"❌ Error analyzing bio: {str(e)}")
+        traceback.print_exc()
+        return jsonify({"error": "Failed to analyze bio"}), 500
 
 #----------------------------------------------------------------------------------------------------------------------
 

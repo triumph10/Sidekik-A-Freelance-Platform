@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freelancer Profile - Side-kik</title>
+    <link rel="stylesheet" href="../static/css/main.css">
+    <link rel="stylesheet" href="../static/css/profile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .bio-feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .bio-feedback.good {
+            background-color: #e6f7e6;
+            border: 1px solid #28a745;
+        }
+        
+        .bio-feedback.poor {
+            background-color: #fff3e6;
+            border: 1px solid #fd7e14;
+        }
+        
+        .feedback-list {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+        
+        .analyze-bio-btn {
+            background-color: #4a6cf7;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        
+        .analyze-bio-btn:hover {
+            background-color: #3a5bd9;
+        }
+    </style>
+</head>
+<body>
+    
+    <header class="main-header">
+        <div class="logo">
+            <h1>Side-kik</h1>
+        </div>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="{{ url_for('freelancer_dashboard') }}">Dashboard</a></li>
+            </ul>
+        </nav>
+        <div class="profile-menu">
+            <span class="username">{{ profile.full_name }}</span>
+        </div>
+    </header>
+
+   
+
+        <main class="profile-container">
+            <section class="profile-header">
+                <div class="profile-info">
+                    <div class="profile-avatar">
+                        <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="{{ profile.full_name }}">
+                    </div>
+                    <div class="profile-details">
+                        <div class="profile-text">
+                            <h1>{{ profile.full_name }}</h1>
+                            <h2>{{ profile.bio }}</h2>
+                            <p class="email"><i class="fas fa-envelope"></i> {{ profile.email }}</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+       
+
+                <div class="profile-content">
+                    <section class="profile-main">
+                        <div class="experience-section">
+                            <h3>Experience Level</h3>
+                            <p>{{ profile.experience }} years</p>
+                        </div>
+        
+                        <div class="budget-section">
+                            <h3>Hourly Rate</h3>
+                            <p>${{ profile.rate }} per hour</p>
+                        </div>
+        
+                        <div class="about-section">
+                            <h3>About Me</h3>
+                            <p>{{ profile.bio }}</p>
+                            <button id="analyzeBioBtn" class="analyze-bio-btn">Analyze Bio Quality</button>
+                            
+                            <div id="bioFeedback" class="bio-feedback">
+                                <h4 id="feedbackTitle">Bio Quality Analysis</h4>
+                                <p id="overallAssessment"></p>
+                                <ul id="feedbackList" class="feedback-list"></ul>
+                            </div>
+                        </div>
+        
+                        <div class="skills-section">
+                            <h3>Skills</h3>
+                            <div class="skills-grid">
+                                {% for skill in profile.skills %}
+                                    <span class="skill-tag">{{ skill }}</span>
+                                {% endfor %}
+
+                            </div>
+                        </div>
+                    </section>
+
+                <div class="portfolio-section">
+                    <h3>Portfolio Projects</h3>
+                    <div class="projects-grid">
+                        <!-- Project cards will be dynamically added here -->
+                    </div>
+                </div>
+
+                <div class="portfolio-url-section">
+                    <h3>Portfolio URL</h3>
+                    <p><a href="https://portfolio.johndoe.dev" target="_blank">https://portfolio.johndoe.dev</a></p>
+                </div>
+            </section>
+
+            <aside class="profile-sidebar">
+                
+
+                <div class="contact-card">
+                    <h3>Contact Information</h3>
+                    <ul class="contact-list">
+                        <li><i class="fas fa-envelope"></i> {{ profile.email }}</li>
+                        <li><i class="fas fa-phone"></i> +1 (555) 123-4567</li>
+                        <li><i class="fas fa-globe"></i> www.johndoe.dev</li>
+                    </ul>
+                </div>
+
+                <div class="social-card">
+                    <h3>Social Links</h3>
+                    <div class="social-links">
+                        <a href="#" class="social-link linkedin">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                        <a href="#" class="social-link github">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="#" class="social-link twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="social-link dribbble">
+                            <i class="fab fa-dribbble"></i>
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <script type="module" src="../static/js/profile.js"></script>
+    <script type="module">
+        import CONFIG from "../static/js/config.js";
+        
+        document.addEventListener("DOMContentLoaded", function() {
+            // Bio quality analysis functionality
+            const analyzeBioBtn = document.getElementById("analyzeBioBtn");
+            const bioFeedback = document.getElementById("bioFeedback");
+            const feedbackTitle = document.getElementById("feedbackTitle");
+            const overallAssessment = document.getElementById("overallAssessment");
+            const feedbackList = document.getElementById("feedbackList");
+            
+            if (analyzeBioBtn) {
+                analyzeBioBtn.addEventListener("click", async function() {
+                    try {
+                        const bioText = "{{ profile.bio }}";
+                        
+                        if (!bioText || bioText.trim() === "") {
+                            alert("No bio text available to analyze.");
+                            return;
+                        }
+                        
+                        // Show loading state
+                        analyzeBioBtn.textContent = "Analyzing...";
+                        analyzeBioBtn.disabled = true;
+                        
+                        // Send request to analyze bio
+                        const response = await fetch("/check_bio_quality", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({ bio: bioText })
+                        });
+                        
+                        if (!response.ok) {
+                            throw new Error("Failed to analyze bio");
+                        }
+                        
+                        const analysis = await response.json();
+                        
+                        // Reset button
+                        analyzeBioBtn.textContent = "Analyze Bio Quality";
+                        analyzeBioBtn.disabled = false;
+                        
+                        // Display feedback
+                        bioFeedback.style.display = "block";
+                        bioFeedback.className = "bio-feedback " + (analysis.is_good_quality ? "good" : "poor");
+                        
+                        feedbackTitle.textContent = analysis.is_good_quality 
+                            ? "Bio Quality: Good" 
+                            : "Bio Quality: Needs Improvement";
+                            
+                        overallAssessment.textContent = analysis.overall_assessment;
+                        
+                        // Clear previous feedback
+                        feedbackList.innerHTML = "";
+                        
+                        // Add feedback items
+                        if (analysis.feedback && analysis.feedback.length > 0) {
+                            analysis.feedback.forEach(item => {
+                                const li = document.createElement("li");
+                                li.textContent = item;
+                                feedbackList.appendChild(li);
+                            });
+                        } else {
+                            const li = document.createElement("li");
+                            li.textContent = "No specific suggestions - your bio looks good!";
+                            feedbackList.appendChild(li);
+                        }
+                        
+                    } catch (error) {
+                        console.error("Error analyzing bio:", error);
+                        alert("Failed to analyze bio. Please try again later.");
+                        
+                        // Reset button
+                        analyzeBioBtn.textContent = "Analyze Bio Quality";
+                        analyzeBioBtn.disabled = false;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
